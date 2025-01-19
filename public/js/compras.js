@@ -460,4 +460,9 @@ async function handleCommentSubmit(e) {
   }
 }
 
+const tituloCompras = document.getElementById('tituloCompras');
+if (tituloCompras && username) {
+  tituloCompras.textContent = `${username.toUpperCase()} - Urgentes`;
+}
+
 fetchAllTickets();

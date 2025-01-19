@@ -53,6 +53,7 @@ ticketForm.addEventListener('submit', async (e) => {
     cant: Number(formData.get('cant')),
     comentario: formData.get('comentario'),
     cliente: formData.get('cliente'),
+    rubro: formData.get('rubro'),
   };
 
   try {
@@ -441,5 +442,32 @@ function showInAppAlert(message) {
 alertCloseBtn.addEventListener('click', () => {
   inAppAlert.style.display = 'none';
 });
+
+// Obtener referencias
+const codPosInput = document.getElementById('cod_pos_input');
+const rubroSelect = document.getElementById('rubro');
+
+codPosInput.addEventListener('blur', async () => {
+  const codPosValue = codPosInput.value.trim();
+  if (!codPosValue) return;
+
+  try {
+    const res = await fetch(`/catalog/codpos/${encodeURIComponent(codPosValue)}`);
+    if (!res.ok) {
+      console.warn('No se encontró Cód/Pos:', codPosValue);
+      return;
+    }
+    const data = await res.json();
+    // data.rubro podría ser "BOMBA DE DIRECCION HIDRAULICA" por ejemplo
+
+    // 3) Asignar al <select> con Select2
+    // OJO: el string de data.rubro debe ser igual al <option value="...">
+    $('#rubro').val(data.rubro).trigger('change');
+
+  } catch (error) {
+    console.error('Error al buscar rubro:', error);
+  }
+});
+
 
 fetchMyTickets();

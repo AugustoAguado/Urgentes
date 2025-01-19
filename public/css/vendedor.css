@@ -133,7 +133,7 @@ header h1 {
   margin-bottom: 5px;
 }
 
-.crear-ticket .form-group input {
+.crear-ticket .form-group input, select {
   padding: 10px;
   border: 1px solid #444;
   border-radius: 5px;
@@ -532,6 +532,96 @@ header h1 {
 
 .mayusc {
   text-transform: uppercase;
+}
+
+/* Fondo y texto del área de búsqueda (barra superior dentro del dropdown) */
+.select2-container--default .select2-search.select2-search--dropdown .select2-search__field {
+  background-color: #333 !important;
+  color: #fff !important;
+  border: 1px solid #555 !important;
+  height: 35px;
+}
+
+/* Contenedor flotante del menú desplegable */
+.select2-container--default .select2-dropdown {
+  background-color: #333 !important; /* fondo oscuro */
+  border: 1px solid #555 !important; /* borde gris */
+}
+
+/* Lista de opciones */
+.select2-container--default .select2-results > .select2-results__options {
+  background-color: #333 !important;
+  color: #fff !important;
+}
+
+/* Opciones en hover/seleccionadas */
+.select2-container--default .select2-results__option--highlighted {
+  background-color: #555 !important;
+  color: #fff !important;
+}
+
+/* El contenedor que se ve cuando NO está abierto (caja del select) */
+.select2-container--default .select2-selection--single {
+  box-sizing: content-box !important;
+  padding: 4px;
+  border: 1px solid #444 !important;
+  border-radius: 5px;
+  background: #333 !important;
+  color: #eee;
+}
+.select2-container--default .select2-selection--single button {
+  color: #ff4444;
+}
+
+/* Placeholder en la caja cerrada */
+.select2-container--default .select2-selection__placeholder {
+  color: #bbb !important;
+}
+
+/* Texto del elemento seleccionado */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #fff !important;
+}
+
+/* Le damos algo de padding al contenedor del input */
+.select2-container--default .select2-search--dropdown {
+  padding: 20px 8px; /* ajusta a gusto */
+}
+
+/* 1. Chrome, Safari, Edge (basados en Chromium) */
+.select2-container--default .select2-results > .select2-results__options::-webkit-scrollbar {
+  width: 15px; /* ancho de la barra */
+  height: 15px; /* si fuera horizontal */
+}
+
+.select2-container--default .select2-results > .select2-results__options::-webkit-scrollbar-track {
+  background: #333; /* fondo del “canal” */
+}
+
+.select2-container--default .select2-results > .select2-results__options::-webkit-scrollbar-thumb {
+  background-color: #666; /* color de la barra */
+  border-radius: 4px; /* esquinas redondeadas */
+  border: 2px solid #444; /* opcional, hace un borde */
+}
+
+.select2-container--default .select2-results > .select2-results__options::-webkit-scrollbar-thumb:hover {
+  background-color: #999; /* color al pasar el mouse */
+}
+
+/* 2. Firefox */
+.select2-container--default .select2-results > .select2-results__options {
+  scrollbar-width: auto; /* “auto” o “thin” */
+  scrollbar-color: #666 #333; /* thumb track */
+}
+
+.select2-container--default .select2-results__option {
+  border-bottom: 1px solid #949494; /* tu color preferido */
+  padding: 6px; /* un poco de espacio */
+}
+
+/* Opcional: quitar el borde en la última opción */
+.select2-container--default .select2-results__option:last-child {
+  border-bottom: none;
 }
 
 /* Responsive Design */

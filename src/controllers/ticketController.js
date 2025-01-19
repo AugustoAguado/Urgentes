@@ -1,71 +1,94 @@
 // src/controllers/ticketController.js
 const Ticket = require('../models/Ticket');
 const { getIO } = require('../helpers/socket');
+const User = require('../models/User');
 
 exports.createTicket = async (req, res) => {
-  console.log('req.body:', req.body);
-  console.log('req.user:', req.user);
+  const { chasis, cod_pos, cant, comentario, cliente, rubro } = req.body;
 
-  const { chasis, cod_pos, cant, comentario, cliente } = req.body;
-
-  // Solo Vendedor
   if (!req.user || req.user.role !== 'vendedor') {
     return res.status(403).json({ error: 'Solo un vendedor puede crear tickets' });
   }
 
   try {
+    // Buscamos un usuario que tenga 'rubro' dentro de su array de rubros
+    // role: 'compras' y rubros: { $in: [rubro] }
+    const comprador = await User.findOne({
+      role: 'compras',
+      rubros: { $in: [rubro] } 
+    });
+
+    if (!comprador) {
+      return res.status(400).json({ error: 'No hay un usuario de compras que maneje este rubro.' });
+    }
+
     const ticket = new Ticket({
       chasis,
       cod_pos,
       cant,
       comentario,
       cliente,
+      rubro,                         // guardamos el rubro
+      compradorAsignado: comprador._id, // asignamos el usuario de compras
       usuario: req.user.id
     });
+
     await ticket.save();
 
-    // Obtén la instancia real de io y emite:
     const io = getIO();
     io.emit('nuevoTicket', ticket);
 
     res.status(201).json(ticket);
   } catch (error) {
-    console.error('createTicket -> Error al crear ticket:', error);
+    console.error('Error al crear ticket:', error);
     res.status(500).json({ error: 'Error al crear el ticket' });
   }
 };
 
+
 exports.getMyTickets = async (req, res) => {
-  // Solo Vendedor
   if (req.user.role !== 'vendedor') {
     return res.status(403).json({ error: 'Acceso no autorizado' });
   }
 
   try {
-    const tickets = await Ticket.find({ usuario: req.user.id }).sort({ fecha: -1 });
+    // Ordenar por fecha descendente (la fecha más reciente primero)
+    const tickets = await Ticket.find({ usuario: req.user.id })
+      .sort({ fecha: -1 });
+
     res.json(tickets);
   } catch (error) {
-    console.error('getMyTickets -> Error al obtener tickets:', error);
+    console.error('Error al obtener tickets:', error);
     res.status(500).json({ error: 'Error al obtener tickets' });
   }
 };
 
+
 exports.getAllTickets = async (req, res) => {
-  // Solo Compras
   if (!['compras', 'admin'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Acceso no autorizado' });
   }
 
   try {
-    const tickets = await Ticket.find({})
+    let filter = {};
+    // Si es 'compras', solo los que están asignados a él
+    if (req.user.role === 'compras') {
+      filter = { compradorAsignado: req.user.id };
+    }
+
+    // Si es 'admin', puede ver todos
+    const tickets = await Ticket.find(filter)
       .sort({ fecha: -1 })
-      .populate('usuario', 'username');
+      .populate('usuario', 'username')
+      .populate('compradorAsignado', 'username');
+
     res.json(tickets);
   } catch (error) {
-    console.error('getAllTickets -> Error al obtener todos los tickets:', error);
-    res.status(500).json({ error: 'Error al obtener todos los tickets' });
+    console.error('Error al obtener tickets:', error);
+    res.status(500).json({ error: 'Error al obtener tickets' });
   }
 };
+
 
 exports.resolveTicket = async (req, res) => {
   console.log('resolveTicket -> Datos recibidos:', req.body);

@@ -7,8 +7,9 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const adminRoutes = require('./routes/adminRoutes'); // <-- Importar
-
+const catalogRoutes = require('./routes/catalogRoutes');
 const app = express();
+
 
 app.use(cors());
 app.use(express.json());
@@ -22,5 +23,6 @@ app.use('/admin', adminRoutes);
 
 // Archivos estáticos
 app.use(express.static('public'));
+app.use('/catalog', catalogRoutes);
 
 module.exports = app;

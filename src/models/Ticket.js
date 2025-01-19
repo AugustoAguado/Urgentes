@@ -6,6 +6,7 @@ const generateShortId = () => {
   return `${timestamp}-${random}`; // Combinar para generar un ID único corto
   
 };
+const { Schema } = mongoose;
 
 const TicketSchema = new mongoose.Schema({
   fecha: { type: Date, default: Date.now },
@@ -16,6 +17,11 @@ const TicketSchema = new mongoose.Schema({
   cliente: { type: String, required: true },
   usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   estado: { type: String, default: 'pendiente', enum: ['pendiente', 'resuelto', 'negativo'] },
+  rubro: { type: String },
+  compradorAsignado: {
+    type: Schema.Types.ObjectId,
+    ref: 'User' 
+  },
   resolucion: { type: String },
   codigo: { type: String },
   cantidad_resuelta: { type: Number },
