@@ -134,6 +134,8 @@ function renderTickets(tickets) {
     const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES');
 
     const row = document.createElement('tr');
+    const comentario = ticket.comentario || 'N/A';
+    const comentarioTruncado = comentario.length > 10 ? comentario.slice(0, 10) + '...' : comentario;
     row.classList.add('ticket-header');
     row.innerHTML = `
       <td class="center-col">${fechaFormateada}</td>
@@ -142,7 +144,7 @@ function renderTickets(tickets) {
       <td>${ticket.cod_pos || 'N/A'}</td>
       <td class="center-col">${ticket.cant || 'N/A'}</td>
       <td>${ticket.cliente || 'N/A'}</td>
-      <td>${ticket.comentario || 'N/A'}</td>
+      <td>${comentarioTruncado || 'N/A'}</td>
       <td class="new-indicator center-col" id="new-${ticket._id}">
         ${
           (role === 'compras' && ticket.nuevosComentarios?.compras) ||
@@ -242,6 +244,7 @@ function updateTicketModal(ticket) {
         <tr><th>COD/POS</th><td>${ticket.codigo}</td></tr>
         <tr><th>PROVEEDOR</th><td>${ticket.proveedor || 'N/A'}</td></tr>
         <tr><th>INGRESO</th><td>${ticket.ingreso || 'N/A'}</td></tr>
+        <tr><th>CANTIDAD RESUELTA</th><td>${ticket.cantidad_resuelta || 'N/A'}</td></tr>
         <tr><th>COMENTARIO</th><td>${ticket.comentario_resolucion || 'N/A'}</td></tr>
       </table>
     `;

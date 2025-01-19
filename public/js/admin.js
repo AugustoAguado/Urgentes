@@ -51,13 +51,13 @@ function renderTickets(tickets) {
     <table class="tickets-table">
       <thead>
         <tr>
+          <th class="center-col">TICKET ID</th>
           <th class="center-col">FECHA</th>
           <th>USUARIO</th>
           <th>CHASIS</th>
           <th>COD/POS</th>
           <th class="center-col">CANT</th>
           <th>CLIENTE</th>
-          <th>COMENTARIO</th>
           <th class="center-col">ESTADO</th>
         </tr>
       </thead>
@@ -68,17 +68,15 @@ function renderTickets(tickets) {
             ticket.estado === 'resuelto' ? 'estado-verde' : 
             ticket.estado === 'negativo' ? 'estado-rojo' : 
             'estado-naranja';
-
-          // Agregamos data-id="${ticket._id}" en la <tr>
           return `
             <tr data-id="${ticket._id}">
+              <td class="center-col">${ticket.shortId}</td>
               <td class="center-col">${fechaFormateada}</td>
               <td>${ticket.usuario?.username || 'N/A'}</td>
               <td>${ticket.chasis || 'N/A'}</td>
               <td>${ticket.cod_pos || 'N/A'}</td>
               <td class="center-col">${ticket.cant || 'N/A'}</td>
               <td>${ticket.cliente || 'N/A'}</td>
-              <td>${ticket.comentario || 'N/A'}</td>
               <td class="center-col">
                 <span class="estado-circulo ${estadoClass}"></span>
                 ${ticket.estado}
@@ -152,98 +150,154 @@ fechaFin.addEventListener('change', applyFilters);
 
 
 
+const modal = document.getElementById('columnSelectorModal');
+const confirmExport = document.getElementById('confirmExport');
+const cancelExport = document.getElementById('cancelExport');
 
-exportarXLSX.addEventListener('click', async () => {
-  const filteredTickets = document.querySelectorAll('.tickets-table tbody tr');
-  if (!filteredTickets.length) {
-    alert('No hay datos para exportar.');
-    return;
-  }
+// Mostrar el modal al hacer clic en exportar
+exportarXLSX.addEventListener('click', () => {
+  modal.style.display = 'block';
+});
 
-  // Crear un nuevo workbook y una hoja
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('Tickets Filtrados');
+// Ocultar el modal al cancelar
+cancelExport.addEventListener('click', () => {
+  modal.style.display = 'none';
+});
 
-  // Estilo general para encabezados
-  const headerStyle = {
-    font: { bold: true, color: { argb: 'FFFFFF' } },
-    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '333333' } },
-    alignment: { horizontal: 'center', vertical: 'middle' },
-    border: {
-      top: { style: 'thin', color: { argb: '000000' } },
-      left: { style: 'thin', color: { argb: '000000' } },
-      bottom: { style: 'thin', color: { argb: '000000' } },
-      right: { style: 'thin', color: { argb: '000000' } },
-    },
-  };
 
-  const contentStyle = {
-    font: { color: { argb: '111111' } },
-    alignment: { horizontal: 'left', vertical: 'middle' },
-    border: {
-      top: { style: 'thin', color: { argb: '000000' } },
-      left: { style: 'thin', color: { argb: '000000' } },
-      bottom: { style: 'thin', color: { argb: '000000' } },
-      right: { style: 'thin', color: { argb: '000000' } },
-    },
-  };
+confirmExport.addEventListener('click', async () => {
+  try {
+    // Obtener las columnas seleccionadas
+    const selectedColumns = Array.from(
+      document.querySelectorAll('input[name="columns"]:checked')
+    ).map((input) => input.value);
 
-  const estadoStyles = {
-    resuelto: { font: { color: { argb: '00B050' } } }, // Verde
-    pendiente: { font: { color: { argb: 'FFC000' } } }, // Amarillo
-    negativo: { font: { color: { argb: 'FF0000' } } }, // Rojo
-  };
-
-  // Agregar encabezados
-  const headers = ['Fecha', 'Usuario', 'Chasis', 'Cod/Pos', 'Cantidad', 'Cliente', 'Comentario', 'Estado'];
-  worksheet.addRow(headers);
-  worksheet.getRow(1).eachCell(cell => {
-    cell.style = headerStyle;
-  });
-
-  // Agregar datos
-  filteredTickets.forEach(row => {
-    const cells = Array.from(row.querySelectorAll('td'));
-    const rowData = cells.map(cell => cell.textContent.trim());
-
-    // Validar y alinear los datos con los encabezados
-    while (rowData.length < headers.length) {
-      rowData.push(''); // Rellenar celdas vacías
+    if (!selectedColumns.length) {
+      alert('Por favor selecciona al menos una columna para exportar.');
+      return;
     }
 
-    const newRow = worksheet.addRow(rowData);
+    // Crear un nuevo libro y hoja de Excel
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Tickets Filtrados');
 
-    // Aplicar estilos a las celdas
-    newRow.eachCell((cell, colNumber) => {
-      cell.style = contentStyle;
+    // Estilos de encabezados
+    const headerStyle = {
+      font: { bold: true, color: { argb: 'FFFFFF' } },
+      fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: '333333' } },
+      alignment: { horizontal: 'center', vertical: 'middle' },
+      border: {
+        top: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '000000' } },
+        right: { style: 'thin', color: { argb: '000000' } },
+      },
+    };
 
-      // Aplicar estilo a la columna "Estado"
-      if (colNumber === headers.length) {
-        const estado = cell.value.toLowerCase();
-        if (estadoStyles[estado]) {
-          cell.style = { ...contentStyle, ...estadoStyles[estado] };
+    const contentStyle = {
+      font: { color: { argb: '000000' } },
+      alignment: { horizontal: 'left', vertical: 'middle' },
+      border: {
+        top: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '000000' } },
+        right: { style: 'thin', color: { argb: '000000' } },
+      },
+    };
+
+    const estadoStyles = {
+      pendiente: { font: { color: { argb: 'FFC000' } } }, // Amarillo
+      resuelto: { font: { color: { argb: '00B050' } } }, // Verde
+      negativo: { font: { color: { argb: 'FF0000' } } }, // Rojo
+    };
+
+    // Añadir encabezados
+    worksheet.addRow(selectedColumns);
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.style = headerStyle;
+    });
+
+    // Filtrar las filas visibles en la tabla
+    const visibleRows = document.querySelectorAll('.tickets-table tbody tr');
+
+    // Iterar sobre las filas visibles
+    visibleRows.forEach((row) => {
+      const ticketId = row.getAttribute('data-id');
+      const ticket = allTickets.find((t) => t._id === ticketId); // Buscar en los datos originales
+
+      const rowData = selectedColumns.map((column) => {
+        switch (column) {
+          case 'Ticket ID':
+            return ticket.shortId;
+          case 'Fecha':
+            return new Date(ticket.fecha).toLocaleDateString('es-ES');
+          case 'Usuario':
+            return ticket.usuario?.username || 'N/A';
+          case 'Chasis':
+            return ticket.chasis || 'N/A';
+          case 'Cod/Pos':
+            return ticket.cod_pos || 'N/A';
+          case 'Cantidad':
+            return ticket.cant || 'N/A';
+          case 'Cliente':
+            return ticket.cliente || 'N/A';
+          case 'Estado':
+            return ticket.estado;
+          case 'Rubro':
+            return ticket.rubro || 'N/A';
+          default:
+            return '';
         }
-      }
-    });
-  });
+      });
 
-  // Ajustar ancho de columnas automáticamente
-  worksheet.columns.forEach(column => {
-    let maxLength = 0;
-    column.eachCell({ includeEmpty: true }, cell => {
-      maxLength = Math.max(maxLength, cell.value ? cell.value.toString().length : 0);
-    });
-    column.width = maxLength + 2; // Margen adicional
-  });
+      const newRow = worksheet.addRow(rowData);
 
-  // Descargar el archivo
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'tickets_filtrados.xlsx';
-  link.click();
+      // Aplicar estilos a las celdas
+      newRow.eachCell((cell, colNumber) => {
+        cell.style = { ...contentStyle };
+
+        // Estilo especial para la columna "Estado"
+        if (selectedColumns[colNumber - 1] === 'Estado') {
+          const estado = cell.value?.toLowerCase();
+          if (estadoStyles[estado]) {
+            cell.font = estadoStyles[estado].font;
+          }
+        }
+      });
+    });
+
+    // Ajustar el ancho de las columnas automáticamente
+    worksheet.columns.forEach((column) => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, (cell) => {
+        maxLength = Math.max(maxLength, cell.value ? cell.value.toString().length : 0);
+      });
+      column.width = maxLength + 2; // Margen adicional
+    });
+
+    const now = new Date();
+    const currentDate = now.toLocaleDateString('es-ES').replaceAll('/', '-');
+    const currentTime = now.toLocaleTimeString('es-ES', { hour12: false }).replaceAll(':', '-');
+    const fileName = `ticketsFiltrados_${currentDate}_${currentTime}.xlsx`;
+
+    // Descargar el archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+
+    // Ocultar el modal
+    modal.style.display = 'none';
+  } catch (error) {
+    console.error('Error al exportar:', error);
+  }
 });
+
+
 
 // Botón
 const borrarFiltrados = document.getElementById('borrarFiltrados');

@@ -229,23 +229,32 @@
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script>
-    // Espera a que el DOM esté listo para inicializar
-    document.addEventListener('DOMContentLoaded', () => {
-      // Usamos jQuery para seleccionar el <select id="rubro">
-        $('#rubro').select2({
-  placeholder: 'Selecciona un rubro...',
-  allowClear: true
-  // ...
+document.addEventListener('DOMContentLoaded', () => {
+  // Inicializar Select2
+  $('#rubro').select2({
+    placeholder: 'Selecciona un rubro...',
+    allowClear: true
+  });
+
+  $('#rubro').on('select2:open', () => {
+    document.querySelector('.select2-search__field')
+      ?.setAttribute('placeholder', 'Escribe para filtrar...');
+  });
+
+  // Moverse al siguiente input con Enter
+  const form = document.getElementById('ticketForm');
+  form.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Prevenir el envío del formulario
+      const inputs = Array.from(form.querySelectorAll('input, select, textarea')); // Lista de campos interactivos
+      const index = inputs.indexOf(event.target); // Posición actual
+      if (index >= 0 && index < inputs.length - 1) {
+        inputs[index + 1].focus(); // Mover al siguiente campo
+      }
+    }
+  });
 });
 
-// Cuando se abra el menú, seteamos el placeholder del input
-$('#rubro').on('select2:open', () => {
-  document.querySelector('.select2-search__field')
-    ?.setAttribute('placeholder', 'Escribe para filtrar...');
-});
-
-
-    });
   </script>
 </body>
 </html>

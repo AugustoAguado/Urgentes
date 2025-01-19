@@ -191,6 +191,8 @@ function renderTickets(tickets) {
     const pagoClass = ticket.pago ? 'si-verde' : 'no-rojo';
 
     const row = document.createElement('tr');
+    const comentario = ticket.comentario || 'N/A';
+    const comentarioTruncado = comentario.length > 10 ? comentario.slice(0, 10) + '...' : comentario;
     row.classList.add('ticket-header');
     row.innerHTML = `
       <td class="center-col">${fechaFormateada}</td>
@@ -198,7 +200,7 @@ function renderTickets(tickets) {
       <td class="center-col mayusc">${ticket.cod_pos || '--'}</td>
       <td class="center-col">${ticket.cant || '--'}</td>
       <td class="center-col">${ticket.cliente || '--'}</td>
-      <td class="left-col">${ticket.comentario || 'N/A'}</td>
+      <td class="left-col">${comentarioTruncado || 'N/A'}</td>
       <td class="center-col new-indicator" id="new-${ticket._id}">
         ${
           ticket.nuevosComentarios?.vendedor &&
@@ -238,6 +240,7 @@ function renderTickets(tickets) {
           <tr><th>COD/POS</th><td class="mayusc">${ticket.codigo}</td></tr>
           <tr><th>PROVEEDOR</th><td>${ticket.proveedor || '--'}</td></tr>
           <tr><th>INGRESO</th><td>${ticket.ingreso || '--'}</td></tr>
+          <tr><th>CANTIDAD RESUELTA</th><td>${ticket.cantidad_resuelta || '--'}</td></tr>
           <tr><th>COMENTARIO</th><td>${ticket.comentario_resolucion || '--'}</td></tr>
           <tr><th>AVISADO</th><td>${ticket.avisado ? 'Sí' : 'No'}</td></tr>
           <tr><th>PAGO</th><td>${ticket.pago ? 'Sí' : 'No'}</td></tr>
@@ -468,6 +471,9 @@ codPosInput.addEventListener('blur', async () => {
     console.error('Error al buscar rubro:', error);
   }
 });
+
+
+
 
 
 fetchMyTickets();
