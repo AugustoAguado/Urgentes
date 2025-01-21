@@ -24,11 +24,29 @@
         <option value="resuelto">Resuelto</option>
         <option value="negativo">Negativo</option>
       </select>
+      <div class="filtro-tipo-container">
+        <label for="tipoFiltro">Filtrar por tipo:</label>
+        <select id="tipoFiltro">
+          <option value="">(Ver todos)</option>
+          <option value="consulta">Consulta</option>
+          <option value="revision">Revisión</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+      
+      <div class="filter-container" style="display: flex; align-items: center; gap: 10px;">
+        <input type="date" id="fechaInicio" class="filter-date" placeholder="Fecha Inicio">
+        <input type="date" id="fechaFin" class="filter-date" placeholder="Fecha Fin">
+      </div>
+      <div id="buttonContainer" style="text-align: right; margin-top: 10px;">
+        <button id="exportXLSXButton" class="btn">Exportar a Excel</button>
+      </div>
+      
       <div id="dotFilterSection" style="display: none;">
         <input type="checkbox" id="onlyDotsFiltro">
         <label>Mostrar comentarios sin leer</label>
       </div>
-    </div>
+    </div>   
     <div id="comprasTicketList">
       <table class="tickets-table">
         <thead>
@@ -58,6 +76,7 @@
       <h3>Detalles del Urgente</h3>
       <span class="short-id" id="modalShortId"></span>
       <table class="ticket-table">
+        <tr><th>TIPO</th><td id="modalTipo"></td></tr>
         <tr><th>Vendedor</th><td id="modalVendedor"></td></tr>
         <tr><th>CHASIS</th><td id="modalChasis"></td></tr>
         <tr><th>COD/POS</th><td id="modalCodPos"></td></tr>
@@ -80,5 +99,6 @@
   
   <script src="/socket.io/socket.io.js"></script>
   <script src="js/compras.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 </body>
 </html>

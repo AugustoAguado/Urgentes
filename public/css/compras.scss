@@ -510,6 +510,51 @@ html, body {
 }
 
 
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px; /* Forma redondeada */
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #fff; /* Texto blanco */
+  text-align: center;
+}
+
+.badge-consulta {
+  background-color: #57cfff; /* Azul */
+}
+
+.badge-revision {
+  background-color: #ffae00; /* Amarillo */
+}
+
+.badge-urg {
+  background-color: #FF6347; /* Rojo */
+}
+
+#buttonContainer {
+  margin-top: 10px;
+  margin-right: 20px;
+}
+
+#exportXLSXButton {
+  padding: 10px 15px;
+  background-color: #ffd700;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#exportXLSXButton:hover {
+  background-color: #e6c200;
+}
+
+
+
+
+
 
 
   /* Responsive Design */

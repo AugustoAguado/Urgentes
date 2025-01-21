@@ -18,10 +18,14 @@ const TicketSchema = new mongoose.Schema({
   usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   estado: { type: String, default: 'pendiente', enum: ['pendiente', 'resuelto', 'negativo'] },
   rubro: { type: String },
-  compradorAsignado: {
-    type: Schema.Types.ObjectId,
-    ref: 'User' 
+  tipo: {
+    type: String,
+    enum: ['consulta', 'revision', 'urgente'], // Restringimos a estos valores
+    required: true
   },
+  usuariosAsignados: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'User' } // Array de IDs de usuarios
+  ],
   resolucion: { type: String },
   codigo: { type: String },
   cantidad_resuelta: { type: Number },

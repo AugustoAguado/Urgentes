@@ -4,22 +4,21 @@ const { getIO } = require('../helpers/socket');
 const User = require('../models/User');
 
 exports.createTicket = async (req, res) => {
-  const { chasis, cod_pos, cant, comentario, cliente, rubro } = req.body;
+  const { chasis, cod_pos, cant, comentario, cliente, rubro, tipo } = req.body;
 
   if (!req.user || req.user.role !== 'vendedor') {
     return res.status(403).json({ error: 'Solo un vendedor puede crear tickets' });
   }
 
   try {
-    // Buscamos un usuario que tenga 'rubro' dentro de su array de rubros
-    // role: 'compras' y rubros: { $in: [rubro] }
-    const comprador = await User.findOne({
+    // Encuentra todos los compradores que gestionan este rubro
+    const compradores = await User.find({
       role: 'compras',
-      rubros: { $in: [rubro] } 
+      rubros: { $in: [rubro] },
     });
 
-    if (!comprador) {
-      return res.status(400).json({ error: 'No hay un usuario de compras que maneje este rubro.' });
+    if (!compradores.length) {
+      return res.status(400).json({ error: 'No hay usuarios de compras que manejen este rubro.' });
     }
 
     const ticket = new Ticket({
@@ -28,9 +27,10 @@ exports.createTicket = async (req, res) => {
       cant,
       comentario,
       cliente,
-      rubro,                         // guardamos el rubro
-      compradorAsignado: comprador._id, // asignamos el usuario de compras
-      usuario: req.user.id
+      rubro,
+      tipo,
+      usuariosAsignados: compradores.map((comprador) => comprador._id), // Asignar compradores
+      usuario: req.user.id,
     });
 
     await ticket.save();
@@ -47,21 +47,34 @@ exports.createTicket = async (req, res) => {
 
 
 exports.getMyTickets = async (req, res) => {
-  if (req.user.role !== 'vendedor') {
-    return res.status(403).json({ error: 'Acceso no autorizado' });
-  }
-
   try {
-    // Ordenar por fecha descendente (la fecha más reciente primero)
-    const tickets = await Ticket.find({ usuario: req.user.id })
-      .sort({ fecha: -1 });
+    if (!['vendedor', 'compras'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Acceso no autorizado' });
+    }
+
+    let tickets;
+
+    if (req.user.role === 'vendedor') {
+      // Los vendedores ven solo sus tickets
+      tickets = await Ticket.find({ usuario: req.user.id }).sort({ fecha: -1 });
+    } else if (req.user.role === 'compras') {
+      if (req.user.username === 'comprasadmin') {
+        // El admin de compras puede ver todos los tickets
+        tickets = await Ticket.find({}).sort({ fecha: -1 });
+      } else {
+        // Compradores específicos ven solo los tickets asignados
+        tickets = await Ticket.find({ usuariosAsignados: req.user.id }).sort({ fecha: -1 });
+      }
+    }
 
     res.json(tickets);
   } catch (error) {
     console.error('Error al obtener tickets:', error);
-    res.status(500).json({ error: 'Error al obtener tickets' });
+    res.status(500).json({ error: 'Error interno al obtener tickets' });
   }
 };
+
+
 
 
 exports.getAllTickets = async (req, res) => {
@@ -71,16 +84,15 @@ exports.getAllTickets = async (req, res) => {
 
   try {
     let filter = {};
-    // Si es 'compras', solo los que están asignados a él
-    if (req.user.role === 'compras') {
-      filter = { compradorAsignado: req.user.id };
+    if (req.user.role === 'compras' && req.user.username !== 'comprasadmin') {
+      // Solo tickets asignados al usuario actual de compras
+      filter = { usuariosAsignados: req.user.id };
     }
 
-    // Si es 'admin', puede ver todos
     const tickets = await Ticket.find(filter)
       .sort({ fecha: -1 })
       .populate('usuario', 'username')
-      .populate('compradorAsignado', 'username');
+      .populate('usuariosAsignados', 'username'); // Mostrar detalles de los usuarios asignados
 
     res.json(tickets);
   } catch (error) {
@@ -88,6 +100,7 @@ exports.getAllTickets = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener tickets' });
   }
 };
+
 
 
 exports.resolveTicket = async (req, res) => {

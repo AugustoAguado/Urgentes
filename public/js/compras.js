@@ -63,11 +63,21 @@ const filterInput = document.getElementById('filterInput');
 const estadoFiltro = document.getElementById('estadoFiltro');
 const onlyDotsFiltro = document.getElementById('onlyDotsFiltro');
 const dotFilterSection = document.getElementById('dotFilterSection');
+const fechaInicio = document.getElementById('fechaInicio');
+const fechaFin = document.getElementById('fechaFin');
+const applyFiltersButton = document.getElementById('applyFilters');
+const exportXLSXButton = document.getElementById('exportXLSXButton');
+const tipoFiltro = document.getElementById('tipoFiltro'); // Capturamos el select de tipo
+
 let allTickets = [];
 
 filterInput.addEventListener('keyup', applyFilters);
 estadoFiltro.addEventListener('change', applyFilters);
 onlyDotsFiltro.addEventListener('change', applyFilters);
+fechaInicio.addEventListener('change', applyFilters); // Filtra automáticamente al cambiar la fecha de inicio
+fechaFin.addEventListener('change', applyFilters);   // Filtra automáticamente al cambiar la fecha de fin
+tipoFiltro.addEventListener('change', applyFilters); // Escuchamos cambios
+
 
 function showOrHideDotFilter(tickets) {
   const hasAnyDot = tickets.some(ticket => ticket.nuevosComentarios?.compras);
@@ -78,26 +88,40 @@ function showOrHideDotFilter(tickets) {
 }
 
 function applyFilters() {
-  const searchValue = filterInput.value.toLowerCase();
+  const searchValue = filterInput.value.trim().toLowerCase();
   const selectedEstado = estadoFiltro.value;
-  const showOnlyDots = onlyDotsFiltro.checked;
+  const selectedTipo = tipoFiltro.value; // Capturamos el tipo seleccionado
+  const inicio = fechaInicio.value ? new Date(fechaInicio.value) : null;
+  const fin = fechaFin.value ? new Date(fechaFin.value) : null;
+  const onlyDotsChecked = onlyDotsFiltro.checked;
 
-  let filteredTickets = allTickets.filter(ticket =>
-    JSON.stringify(ticket).toLowerCase().includes(searchValue)
-  );
+  const filteredTickets = allTickets.filter(ticket => {
+    const matchesSearch = JSON.stringify(ticket).toLowerCase().includes(searchValue);
+    const matchesEstado = !selectedEstado || ticket.estado === selectedEstado;
+    const matchesTipo = !selectedTipo || ticket.tipo === selectedTipo; // Nuevo filtro de tipo
+    const matchesFecha =
+      (!inicio || new Date(ticket.fecha) >= inicio) &&
+      (!fin || new Date(ticket.fecha) <= fin);
+    const matchesUnreadComments =
+      !onlyDotsChecked || ticket.nuevosComentarios?.compras;
 
-  if (selectedEstado) {
-    filteredTickets = filteredTickets.filter(ticket => ticket.estado === selectedEstado);
-  }
-
-  if (showOnlyDots) {
-    filteredTickets = filteredTickets.filter(ticket =>
-      ticket.nuevosComentarios?.compras
+    return (
+      matchesSearch &&
+      matchesEstado &&
+      matchesTipo && // Aplica el filtro de tipo
+      matchesFecha &&
+      matchesUnreadComments
     );
-  }
+  });
 
   renderTickets(filteredTickets);
 }
+
+
+
+
+
+
 
 const comprasTicketList = document.getElementById('comprasTicketList');
 
@@ -107,6 +131,7 @@ function renderTickets(tickets) {
       <thead>
         <tr>
           <th class="center-col">FECHA</th>
+          <th class="center-col">TIPO</th>
           <th>USUARIO</th>
           <th>CHASIS</th>
           <th>COD/POS</th>
@@ -131,14 +156,28 @@ function renderTickets(tickets) {
         : ticket.estado === 'negativo'
         ? 'estado-rojo'
         : 'estado-naranja';
+
+    const tipoClass =
+      ticket.tipo === 'consulta'
+        ? 'badge-consulta'
+        : ticket.tipo === 'revision'
+        ? 'badge-revision'
+        : 'badge-urg'; // Para 'urg'
+
     const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES');
 
     const row = document.createElement('tr');
+    row.setAttribute('data-id', ticket._id); // Agregar el atributo data-id con el _id del ticket
+
     const comentario = ticket.comentario || 'N/A';
     const comentarioTruncado = comentario.length > 10 ? comentario.slice(0, 10) + '...' : comentario;
+
     row.classList.add('ticket-header');
     row.innerHTML = `
       <td class="center-col">${fechaFormateada}</td>
+      <td class="center-col">
+        <span class="badge ${tipoClass}">${ticket.tipo}</span>
+      </td>
       <td>${ticket.usuario?.username || 'N/A'}</td>
       <td>${ticket.chasis || 'N/A'}</td>
       <td>${ticket.cod_pos || 'N/A'}</td>
@@ -160,7 +199,6 @@ function renderTickets(tickets) {
     `;
 
     row.addEventListener('click', () => handleTicketClick(ticket));
-
     fragment.appendChild(row);
   });
 
@@ -175,6 +213,7 @@ function renderTickets(tickets) {
     }
   }
 }
+
 
 function handleTicketClick(ticket) {
   if (openTicketId === ticket._id) {
@@ -216,7 +255,7 @@ function updateTicketModal(ticket) {
   overlay.style.display = 'block';
   modal.style.display = 'block';
 
-  overlay.addEventListener('click', e => {
+  overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       closeTicketModal();
     }
@@ -224,6 +263,7 @@ function updateTicketModal(ticket) {
 
   openTicketId = ticket._id;
 
+  // Actualizamos la información del modal
   document.getElementById('modalShortId').textContent = `ID: ${ticket.shortId}`;
   document.getElementById('modalVendedor').textContent = ticket.usuario?.username || 'Desconocido';
   document.getElementById('modalChasis').textContent = ticket.chasis || 'N/A';
@@ -231,6 +271,20 @@ function updateTicketModal(ticket) {
   document.getElementById('modalCant').textContent = ticket.cant || 'N/A';
   document.getElementById('modalCliente').textContent = ticket.cliente || 'N/A';
   document.getElementById('modalComentario').textContent = ticket.comentario || 'N/A';
+
+  // Agregamos el tipo de ticket al modal
+  const tipoClass =
+  ticket.tipo === 'consulta'
+    ? 'badge-consulta'
+    : ticket.tipo === 'revision'
+    ? 'badge-revision'
+    : 'badge-urg'; // Para 'urgente'
+
+const tipoTicketElement = document.getElementById('modalTipo');
+if (tipoTicketElement) {
+  tipoTicketElement.innerHTML = `<span class="badge ${tipoClass}">${ticket.tipo}</span>`;
+}
+
 
   const modalResolucionSection = document.getElementById('modalResolucionSection');
   modalResolucionSection.innerHTML = '';
@@ -307,6 +361,7 @@ function updateTicketModal(ticket) {
   fetchComments(ticket._id, commentsList);
 }
 
+
 function closeTicketModal() {
   openTicketId = null;
   const modal = document.getElementById('ticketModal');
@@ -374,12 +429,14 @@ async function fetchAllTickets() {
     const res = await fetch('/tickets', {
       headers: { Authorization: `Bearer ${token}` },
     });
+    
     allTickets = await res.json();
     showOrHideDotFilter(allTickets);
     applyFilters();
   } catch (error) {
     console.error('Error al obtener tickets:', error);
   }
+
 }
 
 async function fetchComments(ticketId, commentsList) {
@@ -467,5 +524,102 @@ const tituloCompras = document.getElementById('tituloCompras');
 if (tituloCompras && username) {
   tituloCompras.textContent = `${username.toUpperCase()} - Urgentes`;
 }
+
+exportXLSXButton.addEventListener('click', async () => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Tickets Filtrados');
+
+    // Encabezados
+    const headers = ['Fecha', 'Código', 'Proveedor', 'Usuario', 'Cliente', 'Ingreso'];
+    worksheet.addRow(headers);
+
+    // Estilos para los encabezados
+    worksheet.getRow(1).eachCell(cell => {
+      cell.font = { bold: true, color: { argb: 'FFFFFF' } }; // Negrita y texto blanco
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '4F81BD' }, // Color de fondo azul
+      };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' }; // Centrado
+      cell.border = {
+        top: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '000000' } },
+        right: { style: 'thin', color: { argb: '000000' } },
+      };
+    });
+
+    // Filtrar los tickets visibles en la tabla
+    const ticketsTbody = document.getElementById('ticketsTbody');
+    const visibleRows = ticketsTbody.querySelectorAll('tr');
+
+    if (visibleRows.length === 0) {
+      alert('No hay tickets visibles para exportar.');
+      return;
+    }
+
+    visibleRows.forEach(row => {
+      const ticketId = row.getAttribute('data-id');
+      const ticket = allTickets.find(t => t._id === ticketId);
+
+      if (ticket) {
+        const rowData = [
+          ticket.fecha ? new Date(ticket.fecha).toLocaleDateString('es-ES') : 'N/A',
+          ticket.codigo || 'N/A',
+          ticket.proveedor || 'N/A',
+          ticket.usuario?.username || 'N/A',
+          ticket.cliente || 'N/A',
+          ticket.ingreso || 'N/A',
+        ];
+        const newRow = worksheet.addRow(rowData);
+
+        // Estilo para las celdas del cuerpo
+        newRow.eachCell(cell => {
+          cell.font = { color: { argb: '000000' } }; // Texto negro
+          cell.alignment = { horizontal: 'left', vertical: 'middle' }; // Alineado a la izquierda
+          cell.border = {
+            top: { style: 'thin', color: { argb: '000000' } },
+            left: { style: 'thin', color: { argb: '000000' } },
+            bottom: { style: 'thin', color: { argb: '000000' } },
+            right: { style: 'thin', color: { argb: '000000' } },
+          };
+        });
+      }
+    });
+
+    // Ajuste de ancho automático para las columnas
+    worksheet.columns.forEach(column => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, cell => {
+        const value = cell.value || '';
+        maxLength = Math.max(maxLength, value.toString().length);
+      });
+      column.width = maxLength + 2; // Margen adicional
+    });
+
+    // Descargar el archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
+    const now = new Date();
+    const formattedDate = now.toISOString().split('T')[0];
+    const fileName = `Tickets_Filtrados_${formattedDate}.xlsx`;
+
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+  } catch (error) {
+    console.error('Error al exportar:', error);
+    alert('Ocurrió un error al exportar los tickets.');
+  }
+});
+
+
+
 
 fetchAllTickets();

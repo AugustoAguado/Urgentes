@@ -48,6 +48,7 @@ ticketForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const formData = new FormData(ticketForm);
   const payload = {
+    tipo: formData.get('tipo'),
     chasis: formData.get('chasis'),
     cod_pos: formData.get('cod_pos'),
     cant: Number(formData.get('cant')),
@@ -142,6 +143,14 @@ async function fetchMyTickets() {
     const res = await fetch('/tickets/mis', {
       headers: { Authorization: `Bearer ${token}` },
     });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Error al obtener tickets:', errorText);
+      alert('Error al cargar los tickets: ' + errorText);
+      return;
+    }
+
     allTickets = await res.json();
     showOrHideDotFilter(allTickets);
     applyFilters();
@@ -151,6 +160,7 @@ async function fetchMyTickets() {
   }
 }
 
+
 function renderTickets(tickets) {
   ticketList.innerHTML = `
   <div class="table-container">
@@ -158,6 +168,7 @@ function renderTickets(tickets) {
       <thead>
         <tr>
           <th class="center-col">FECHA</th>
+          <th class="center-col">TIPO</th>
           <th class="center-col">CHASIS</th>
           <th class="center-col">COD/POS</th>
           <th class="center-col">CANT</th>
@@ -174,33 +185,42 @@ function renderTickets(tickets) {
   </div>
   `;
 
+
   const ticketsTbody = document.getElementById('ticketsTbody');
 
+  
+
   tickets.forEach(ticket => {
+    // Definir el estadoClass para el círculo del estado, no para toda la fila
     const estadoClass =
       ticket.estado === 'resuelto'
         ? 'estado-verde'
         : ticket.estado === 'negativo'
         ? 'estado-rojo'
         : 'estado-naranja';
-
-    const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES');
-    const avisadoValue = ticket.avisado ? 'Sí' : 'No';
-    const avisadoClass = ticket.avisado ? 'si-verde' : 'no-rojo';
-    const pagoValue = ticket.pago ? 'Sí' : 'No';
-    const pagoClass = ticket.pago ? 'si-verde' : 'no-rojo';
-
+  
+    const tipoClass =
+      ticket.tipo === 'consulta'
+        ? 'badge-consulta'
+        : ticket.tipo === 'revision'
+        ? 'badge-revision'
+        : 'badge-urg'; // Para 'urg'
+  
+    // Crear el elemento `tr` para la fila del ticket
     const row = document.createElement('tr');
-    const comentario = ticket.comentario || 'N/A';
-    const comentarioTruncado = comentario.length > 10 ? comentario.slice(0, 10) + '...' : comentario;
-    row.classList.add('ticket-header');
+    row.classList.add('ticket-header'); // Quitar el estadoClass de aquí
+  
+    // Asignar el contenido HTML de la fila
     row.innerHTML = `
-      <td class="center-col">${fechaFormateada}</td>
+      <td class="center-col">${new Date(ticket.fecha).toLocaleDateString('es-ES')}</td>
+      <td class="center-col">
+        <span class="badge ${tipoClass}">${ticket.tipo}</span>
+      </td>
       <td class="center-col">${ticket.chasis || '--'}</td>
       <td class="center-col mayusc">${ticket.cod_pos || '--'}</td>
       <td class="center-col">${ticket.cant || '--'}</td>
       <td class="center-col">${ticket.cliente || '--'}</td>
-      <td class="left-col">${comentarioTruncado || 'N/A'}</td>
+      <td class="left-col">${ticket.comentario || 'N/A'}</td>
       <td class="center-col new-indicator" id="new-${ticket._id}">
         ${
           ticket.nuevosComentarios?.vendedor &&
@@ -209,13 +229,16 @@ function renderTickets(tickets) {
             : ''
         }
       </td>
-      <td class="center-col ${avisadoClass}">${avisadoValue}</td>
-      <td class="center-col ${pagoClass}">${pagoValue}</td>
+      <td class="center-col">${ticket.avisado ? 'Sí' : 'No'}</td>
+      <td class="center-col">${ticket.pago ? 'Sí' : 'No'}</td>
       <td class="center-col">
-        <span class="estado-circulo ${estadoClass}"></span>
+        <span class="estado-circulo ${estadoClass}"></span> <!-- Aquí va el color del estado -->
         ${ticket.estado}
       </td>
     `;
+  
+  
+  
 
     const detailRow = document.createElement('tr');
     detailRow.classList.add('ticket-detalle');
@@ -229,7 +252,7 @@ function renderTickets(tickets) {
     }
 
     const detailCell = document.createElement('td');
-    detailCell.colSpan = 10;
+    detailCell.colSpan = 11;
 
     let detalleContent = '';
     if (ticket.estado === 'negativo' || ticket.estado === 'resuelto') {
@@ -250,6 +273,7 @@ function renderTickets(tickets) {
       detalleContent = `
         <span class="short-id">ID: ${ticket.shortId}</span>
         <table class="detalle-table">
+          <tr><th>TIPO</th><td><span class="badge ${tipoClass}">${ticket.tipo}</span></td></tr>
           <tr><th>CHASIS</th><td>${ticket.chasis || '--'}</td></tr>
           <tr><th>COD/POS</th><td class="mayusc">${ticket.cod_pos}</td></tr>
           <tr><th>CANT</th><td>${ticket.cant}</td></tr>
@@ -354,7 +378,6 @@ function renderTickets(tickets) {
         alert('Error al procesar la solicitud');
       }
     });
-
     fetchComments(ticket._id, commentsList);
 
     row.addEventListener('click', async () => {

@@ -255,6 +255,13 @@ header h1 {
   background: #2c2c2c;
 }
 
+.tickets-table th,
+.tickets-table td {
+  text-align: left;
+  padding: 8px;
+  white-space: nowrap; /* Evita el desbordamiento de texto */
+}
+
 .detalle-table tr:nth-child(even) td {
   background: #242424;
 }
@@ -624,19 +631,135 @@ header h1 {
   border-bottom: none;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .mis-tickets,
-  #crearTicketSection {
-    width: 95%;
+.badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 12px; /* Forma redondeada */
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #fff; /* Texto blanco */
+  text-align: center;
+}
+
+.badge-consulta {
+  background-color: #57cfff; /* Verde */
+}
+
+.badge-revision {
+  background-color: #ffae00; /* Amarillo */
+}
+
+.badge-urg {
+  background-color: #FF6347; /* Rojo */
+}
+
+/* Contenedor del select */
+.select2-container {
+  width: 100% !important; /* Asegura que ocupe todo el ancho */
+}
+
+/* Elemento seleccionado */
+.select2-container--default .select2-selection--single {
+  height: 20px; /* Ajusta la altura */
+  display: flex;
+  align-items: center;
+  background-color: #333;
+  color: #eee;
+  border: 1px solid #444;
+  border-radius: 5px;
+}
+
+/* Texto del placeholder */
+.select2-container--default .select2-selection__placeholder {
+  color: #aaa;
+}
+
+/* Opciones dentro del dropdown */
+.select2-results__option {
+  padding: 10px;
+}
+
+/* Opciones seleccionadas en hover */
+.select2-results__option--highlighted {
+  background-color: #555 !important;
+  color: #fff !important;
+}
+
+/* Ajusta el alto y el padding de las opciones */
+.select2-container--default .select2-results__option {
+  padding: 10px 20px; /* Incrementa el espacio dentro de cada opción */
+  font-size: 1rem; /* Ajusta el tamaño del texto, si es necesario */
+  min-height: 40px; /* Define un mínimo de alto para las filas */
+  display: flex;
+  align-items: center; /* Asegura el centrado vertical */
+}
+
+/* Cambia el alto de la lista desplegable */
+.select2-container--default .select2-dropdown {
+  max-height: 300px; /* Establece un máximo para evitar que sea demasiado grande */
+  overflow-y: auto; /* Agrega scroll si hay muchas opciones */
+}
+
+/* Ajusta la barra de búsqueda (si la necesitas en el futuro) */
+.select2-container--default .select2-search--dropdown {
+  padding: 10px 20px;
+}
+
+/* Ajustar columnas en pantallas medianas */
+@media (max-width: 1384px) {
+  .tickets-table th,
+  .tickets-table td {
+    padding: 10px 5px; /* Reduce el padding */
+    font-size: 0.9rem; /* Ajusta el tamaño de fuente */
   }
-  .tickets-table th, .tickets-table td {
+  /* Opcional: Oculta columnas menos relevantes */
+  .tickets-table td:nth-child(5),
+  .tickets-table th:nth-child(5) {
+    display: none; /* Oculta la columna "Cantidad" */
+  }
+}
+/* Para pantallas más pequeñas */
+@media (max-width: 768px) {
+  .tickets-table th,
+  .tickets-table td {
     display: block;
-    width: 100%;
     text-align: left;
   }
+  .tickets-table td::before {
+    content: attr(data-label); /* Muestra el encabezado como etiqueta */
+    font-weight: bold;
+    color: #ffd700;
+    margin-right: 10px;
+    display: inline-block;
+    width: 40%;
+  }
   .tickets-table tr {
+    border-bottom: 1px solid #444;
     margin-bottom: 10px;
     display: block;
+  }
+}
+@media (max-width: 768px) {
+  .tickets-table th,
+  .tickets-table td {
+    display: block;
+    text-align: left;
+    padding: 10px;
+  }
+  .tickets-table tr {
+    margin-bottom: 15px;
+    display: block;
+    border: 1px solid #444; /* Opcional: borde alrededor de cada fila */
+    border-radius: 5px; /* Opcional: redondeo */
+  }
+  .tickets-table th {
+    display: none; /* Oculta los encabezados de la tabla */
+  }
+  .tickets-table td::before {
+    content: attr(data-label); /* Usa el atributo `data-label` */
+    font-weight: bold;
+    color: #ffd700; /* Estilo para las etiquetas */
+    display: block;
+    margin-bottom: 5px;
   }
 }/*# sourceMappingURL=vendedor.css.map */

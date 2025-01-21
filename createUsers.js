@@ -151,6 +151,10 @@ async function createUsers() {
         "TENSOR POLIV Y DISTRIBUCION TODOS"
       ];
 
+      
+
+      const TODOS_LOS_RUBROS = [...COMPRAS1_RUBROS, ...COMPRAS2_RUBROS, ...COMPRAS3_RUBROS];
+
     // 4. Crear usuarios
     await User.create([
       // Vendedor
@@ -187,7 +191,14 @@ async function createUsers() {
         password: hashedPassCompras3,
         role: 'compras',
         rubros: COMPRAS3_RUBROS
-      }
+      },
+      {
+        username: 'comprasadmin',
+        password: await bcrypt.hash('compras1075', 10),
+        role: 'compras',
+        rubros: TODOS_LOS_RUBROS
+      },
+  
     ]);
 
     console.log('Usuarios creados con éxito.');
