@@ -16,7 +16,7 @@ const TicketSchema = new mongoose.Schema({
   comentario: { type: String },
   cliente: { type: String, required: true },
   usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  estado: { type: String, default: 'pendiente', enum: ['pendiente', 'resuelto', 'negativo'] },
+  estado: { type: String, default: 'pendiente', enum: ['pendiente', 'resuelto', 'negativo', 'anulado'] },
   rubro: { type: String },
   tipo: {
     type: String,

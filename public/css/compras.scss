@@ -601,7 +601,12 @@ html, body {
 }
 
 
-
+.ticket-anulado {
+  background-color: #fa8686 !important; /* Rojo claro */
+  &:hover{
+    background-color:#fa8686 !important ;
+  }
+}
 
 
 

@@ -594,6 +594,13 @@ header h1 {
   font-weight: bold;
 }
 
+.ticket-anulado {
+  background-color: #fa8686 !important; /* Rojo claro */
+}
+.ticket-anulado:hover {
+  background-color: #fa8686 !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .mis-tickets,

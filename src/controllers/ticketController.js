@@ -295,3 +295,25 @@ exports.updateLlego = async (req, res) => {
     res.status(500).send({ error: 'Error interno del servidor' });
   }
 };
+
+
+exports.cancelTicket = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedTicket = await Ticket.findByIdAndUpdate(
+      id,
+      { estado: 'anulado' },
+      { new: true }
+    );
+
+    if (!updatedTicket) {
+      return res.status(404).send({ error: 'Ticket no encontrado' });
+    }
+
+    res.status(200).send({ message: 'Ticket anulado con éxito', ticket: updatedTicket });
+  } catch (error) {
+    console.error('Error al anular el ticket:', error);
+    res.status(500).send({ error: 'Error interno del servidor' });
+  }
+};

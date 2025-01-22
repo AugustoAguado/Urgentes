@@ -211,6 +211,10 @@ function renderTickets(tickets) {
     const pagoClass = ticket.pago ? 'yes' : 'no';
 
     const row = document.createElement('tr');
+    row.setAttribute('data-id', ticket._id);
+    if (ticket.estado === 'anulado') {
+      row.classList.add('ticket-anulado'); // Aplica la clase para los tickets anulados
+    }
     row.classList.add('ticket-header');
     row.innerHTML = `
       <td class="center-col">${new Date(ticket.fecha).toLocaleDateString('es-ES')}</td>
@@ -300,6 +304,9 @@ function renderTickets(tickets) {
         </div>
         <button type="submit" class="btn">Guardar</button>
       </form>
+        <button class="btn-anular-ticket" data-ticket-id="${ticket._id}">
+      Anular Ticket
+        </button>
       <div class="comments-section">
         <h4>Comentarios</h4>
         <ul class="comments-list" id="comments-${ticket._id}"></ul>
@@ -343,6 +350,43 @@ function renderTickets(tickets) {
         alert('Error al procesar la solicitud');
       }
     });
+
+    const anularButton = detailRow.querySelector('.btn-anular-ticket');
+    if (anularButton) {
+      anularButton.addEventListener('click', async (e) => {
+        e.stopPropagation(); // Prevenir que se abra o cierre el detalle del ticket
+    
+        // Confirmación antes de proceder con la anulación
+        const confirmar = confirm('¿Estás seguro de que deseas anular este ticket? Esta acción no se puede deshacer.');
+        if (!confirmar) {
+          return; // Salir si el usuario cancela la confirmación
+        }
+    
+        const ticketId = e.target.getAttribute('data-ticket-id');
+        try {
+          const res = await fetch(`/tickets/${ticketId}/anular`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    
+          if (!res.ok) {
+            const errorResponse = await res.json();
+            throw new Error(errorResponse.error || 'Error al anular el ticket.');
+          }
+    
+          alert(`El ticket con ID ${ticket.shortId} ha sido anulado.`);
+          fetchMyTickets(); // Refresca la lista de tickets
+        } catch (error) {
+          console.error('Error al anular el ticket:', error);
+          alert('Error al anular el ticket. Intente nuevamente.');
+        }
+      });
+    }
+    
+
 
     const commentForm = detailCell.querySelector('.comment-form');
     const commentsList = detailCell.querySelector(`#comments-${ticket._id}`);

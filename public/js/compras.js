@@ -168,6 +168,10 @@ function renderTickets(tickets) {
     const row = document.createElement('tr');
     row.setAttribute('data-id', ticket._id);
 
+    if (ticket.estado === 'anulado') {
+      row.classList.add('ticket-anulado');
+    }
+
     const comentario = ticket.comentario || 'N/A';
     const comentarioTruncado = comentario.length > 10 ? comentario.slice(0, 10) + '...' : comentario;
     const clienteTruncado = ticket.cliente?.length > 15 ? ticket.cliente.slice(0, 15) + '...' : ticket.cliente;
@@ -340,7 +344,7 @@ if (tipoTicketElement) {
 
   const modalResolucionSection = document.getElementById('modalResolucionSection');
   modalResolucionSection.innerHTML = '';
-  if (ticket.estado === 'resuelto' || ticket.estado === 'negativo') {
+  if (ticket.estado === 'resuelto' || ticket.estado === 'negativo' || ticket.estado === 'anulado') {
     modalResolucionSection.innerHTML = `
       <h3>Resolución: 
         <span title="${ticket.estado}" class="circulo-detalle ${ticket.estado}"></span>
