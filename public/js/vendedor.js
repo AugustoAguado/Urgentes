@@ -209,7 +209,7 @@ function renderTickets(tickets) {
         
     const avisadoClass = ticket.avisado ? 'yes' : 'no';
     const pagoClass = ticket.pago ? 'yes' : 'no';
-
+    comentarioTruncado = ticket.comentario.length > 10 ? ticket.comentario.substring(0, 10) + '...' : ticket.comentario;
     const row = document.createElement('tr');
     row.setAttribute('data-id', ticket._id);
     if (ticket.estado === 'anulado') {
@@ -225,7 +225,7 @@ function renderTickets(tickets) {
       <td class="center-col mayusc">${ticket.cod_pos || '--'}</td>
       <td class="center-col">${ticket.cant || '--'}</td>
       <td class="center-col">${ticket.cliente || '--'}</td>
-      <td class="left-col">${ticket.comentario || 'N/A'}</td>
+      <td class="left-col">${comentarioTruncado || 'N/A'}</td>
       <td class="center-col new-indicator" id="new-${ticket._id}">
         ${
           ticket.nuevosComentarios?.vendedor &&
