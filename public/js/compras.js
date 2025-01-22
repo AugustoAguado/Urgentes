@@ -175,7 +175,7 @@ function renderTickets(tickets) {
     const comentario = ticket.comentario || 'N/A';
     const comentarioTruncado = comentario.length > 10 ? comentario.slice(0, 10) + '...' : comentario;
     const clienteTruncado = ticket.cliente?.length > 15 ? ticket.cliente.slice(0, 15) + '...' : ticket.cliente;
-
+    codposTruncado = ticket.cod_pos?.length > 15 ? ticket.cod_pos.slice(0, 15) + '...' : ticket.cod_pos;
     row.classList.add('ticket-header');
     row.innerHTML = `
       <td class="center-col">${fechaFormateada}</td>
@@ -183,7 +183,7 @@ function renderTickets(tickets) {
         <span class="badge ${tipoClass}">${ticket.tipo}</span>
       </td>
       <td>${ticket.usuario?.username || 'N/A'}</td>
-      <td>${ticket.cod_pos || 'N/A'}</td>
+      <td>${codposTruncado || 'N/A'}</td>
       <td class="center-col">${ticket.cant || 'N/A'}</td>
       <td>${clienteTruncado || 'N/A'}</td>
       <td>${comentarioTruncado || 'N/A'}</td>

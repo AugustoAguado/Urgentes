@@ -210,6 +210,9 @@ function renderTickets(tickets) {
     const avisadoClass = ticket.avisado ? 'yes' : 'no';
     const pagoClass = ticket.pago ? 'yes' : 'no';
     comentarioTruncado = ticket.comentario.length > 10 ? ticket.comentario.substring(0, 10) + '...' : ticket.comentario;
+    codPosTruncado = ticket.cod_pos.length > 10 ? ticket.cod_pos.substring(0, 10) + '...' : ticket.cod_pos;
+    chasisTruncado = ticket.chasis.length > 10 ? ticket.chasis.substring(0, 10) + '...' : ticket.chasis;
+    clienteTruncado = ticket.cliente.length > 10 ? ticket.cliente.substring(0, 10) + '...' : ticket.cliente;
     const row = document.createElement('tr');
     row.setAttribute('data-id', ticket._id);
     if (ticket.estado === 'anulado') {
@@ -221,10 +224,10 @@ function renderTickets(tickets) {
       <td class="center-col">
         <span class="badge ${tipoClass}">${ticket.tipo}</span>
       </td>
-      <td class="center-col">${ticket.chasis || '--'}</td>
-      <td class="center-col mayusc">${ticket.cod_pos || '--'}</td>
+      <td class="center-col">${chasisTruncado || '--'}</td>
+      <td class="center-col mayusc">${codPosTruncado || '--'}</td>
       <td class="center-col">${ticket.cant || '--'}</td>
-      <td class="center-col">${ticket.cliente || '--'}</td>
+      <td class="center-col">${clienteTruncado || '--'}</td>
       <td class="left-col">${comentarioTruncado || 'N/A'}</td>
       <td class="center-col new-indicator" id="new-${ticket._id}">
         ${
