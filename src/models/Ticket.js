@@ -34,6 +34,11 @@ const TicketSchema = new mongoose.Schema({
   comentario_resolucion: { type: String },
   avisado: { type: Boolean, default: false },
   pago: { type: Boolean, default: false },
+  llego: {
+    type: String,
+    enum: ['si', 'no'], // Acepta solo estos valores
+    default: 'no',
+  },
   shortId: { type: String, default: () => generateShortId(), unique: true }, // Campo único e inmutable
   comentarios: [
     {

@@ -553,6 +553,56 @@ html, body {
 
 
 
+#loadMoreBtn {
+  background-color: #5c5c5c; /* Amarillo vibrante para resaltar */
+  color: #000; /* Texto negro para contraste */
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 20px auto 0 auto; /* Centrado */
+  display: block; /* Asegura que esté centrado */
+  transition: all 0.3s ease;
+}
+
+#loadMoreBtn:hover {
+  background-color: #e6b800; /* Un tono más oscuro de amarillo al pasar el mouse */
+  color: #111111; /* Texto blanco para resaltar */
+}
+
+#loadMoreBtn:active {
+  background-color: #cc9900; /* Más oscuro al presionar */
+  transform: scale(0.98); /* Pequeña reducción para feedback visual */
+}
+
+
+.llego-select {
+  border: 1px solid #535353;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #2a2a2a; /* Fondo oscuro */
+  color: #fff;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.llego-select.si {
+  color: #2ecc71; /* Verde para "Sí" */
+  font-weight: bold;
+}
+
+.llego-select.no {
+  color: #e74c3c; /* Rojo para "No" */
+  font-weight: bold;
+}
+
+
+
+
 
 
 

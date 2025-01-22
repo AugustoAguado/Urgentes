@@ -117,13 +117,10 @@ function applyFilters() {
   renderTickets(filteredTickets);
 }
 
-
-
-
-
-
-
 const comprasTicketList = document.getElementById('comprasTicketList');
+
+let ticketsToShow = 15; // Número inicial de tickets a mostrar
+let currentOffset = 0; // Desplazamiento para cargar más tickets
 
 function renderTickets(tickets) {
   comprasTicketList.innerHTML = `
@@ -133,23 +130,25 @@ function renderTickets(tickets) {
           <th class="center-col">FECHA</th>
           <th class="center-col">TIPO</th>
           <th>USUARIO</th>
-          <th>CHASIS</th>
           <th>COD/POS</th>
           <th class="center-col">CANT</th>
           <th>CLIENTE</th>
           <th>COMENTARIO</th>
           <th class="center-col">C</th>
           <th class="center-col">ESTADO</th>
+          <th class="center-col">LLEGÓ</th>
         </tr>
       </thead>
       <tbody id="ticketsTbody"></tbody>
     </table>
+    <button id="loadMoreBtn" class="btn load-more">+</button>
   `;
 
   const ticketsTbody = document.getElementById('ticketsTbody');
   const fragment = document.createDocumentFragment();
 
-  tickets.forEach(ticket => {
+  const visibleTickets = tickets.slice(0, ticketsToShow + currentOffset); // Mostrar solo los tickets visibles
+  visibleTickets.forEach(ticket => {
     const estadoClass =
       ticket.estado === 'resuelto'
         ? 'estado-verde'
@@ -167,10 +166,11 @@ function renderTickets(tickets) {
     const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES');
 
     const row = document.createElement('tr');
-    row.setAttribute('data-id', ticket._id); // Agregar el atributo data-id con el _id del ticket
+    row.setAttribute('data-id', ticket._id);
 
     const comentario = ticket.comentario || 'N/A';
     const comentarioTruncado = comentario.length > 10 ? comentario.slice(0, 10) + '...' : comentario;
+    const clienteTruncado = ticket.cliente?.length > 15 ? ticket.cliente.slice(0, 15) + '...' : ticket.cliente;
 
     row.classList.add('ticket-header');
     row.innerHTML = `
@@ -179,10 +179,9 @@ function renderTickets(tickets) {
         <span class="badge ${tipoClass}">${ticket.tipo}</span>
       </td>
       <td>${ticket.usuario?.username || 'N/A'}</td>
-      <td>${ticket.chasis || 'N/A'}</td>
       <td>${ticket.cod_pos || 'N/A'}</td>
       <td class="center-col">${ticket.cant || 'N/A'}</td>
-      <td>${ticket.cliente || 'N/A'}</td>
+      <td>${clienteTruncado || 'N/A'}</td>
       <td>${comentarioTruncado || 'N/A'}</td>
       <td class="new-indicator center-col" id="new-${ticket._id}">
         ${
@@ -196,13 +195,63 @@ function renderTickets(tickets) {
         <span class="estado-circulo ${estadoClass}"></span>
         ${ticket.estado}
       </td>
+      <td class="center-col">
+        <select class="llego-select ${ticket.llego === 'si' ? 'si' : 'no'}" data-ticket-id="${ticket._id}">
+          <option value="no" ${ticket.llego === 'no' ? 'selected' : ''}>No</option>
+          <option value="si" ${ticket.llego === 'si' ? 'selected' : ''}>Sí</option>
+        </select>
+      </td>
     `;
+
+    // Prevenir que el select abra el ticket
+    const selectElement = row.querySelector('.llego-select');
+    selectElement.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Actualizar el valor del select en el servidor
+    selectElement.addEventListener('change', async (e) => {
+      const newValue = e.target.value;
+      try {
+        // Aplicar estilos dinámicamente
+        selectElement.classList.remove('si', 'no');
+        selectElement.classList.add(newValue === 'si' ? 'si' : 'no');
+
+        const res = await fetch(`/tickets/${ticket._id}/update-llego`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ llego: newValue }),
+        });
+        if (!res.ok) {
+          throw new Error('Error al actualizar el estado de "Llegó"');
+        }
+        console.log(`El estado de "Llegó" para el ticket ${ticket._id} se actualizó a ${newValue}`);
+      } catch (error) {
+        console.error('Error al actualizar el estado de "Llegó":', error);
+        alert('Error al actualizar el estado de "Llegó". Intente nuevamente.');
+      }
+    });
 
     row.addEventListener('click', () => handleTicketClick(ticket));
     fragment.appendChild(row);
   });
 
   ticketsTbody.appendChild(fragment);
+
+  // Mostrar o esconder el botón de "Cargar más"
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  if (ticketsToShow + currentOffset >= tickets.length) {
+    loadMoreBtn.style.display = 'none';
+  } else {
+    loadMoreBtn.style.display = 'block';
+    loadMoreBtn.addEventListener('click', () => {
+      currentOffset += ticketsToShow; // Incrementar el desplazamiento
+      renderTickets(tickets); // Renderizar con los nuevos tickets
+    });
+  }
 
   if (openTicketId) {
     const ticket = tickets.find(t => t._id === openTicketId);
@@ -213,6 +262,9 @@ function renderTickets(tickets) {
     }
   }
 }
+
+
+
 
 
 function handleTicketClick(ticket) {
@@ -531,7 +583,7 @@ exportXLSXButton.addEventListener('click', async () => {
     const worksheet = workbook.addWorksheet('Tickets Filtrados');
 
     // Encabezados
-    const headers = ['Fecha', 'Código', 'Cantidad','Proveedor', 'Usuario', 'Cliente', 'Ingreso'];
+    const headers = ['Fecha', 'Código', 'Cantidad','Proveedor', 'Usuario', 'Cliente', 'Ingreso', 'Llegó'];
     worksheet.addRow(headers);
 
     // Estilos para los encabezados
@@ -573,6 +625,7 @@ exportXLSXButton.addEventListener('click', async () => {
           ticket.usuario?.username || 'N/A',
           ticket.cliente || 'N/A',
           ticket.ingreso || 'N/A',
+          ticket.llego || 'N/A',
         ];
         const newRow = worksheet.addRow(rowData);
 

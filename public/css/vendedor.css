@@ -108,7 +108,11 @@ header h1 {
 }
 
 #toggleCrearTicket:hover {
-  background: #444;
+  background: #555555;
+}
+
+#toggleCrearTicket:active {
+  background: #464426 !important;
 }
 
 #crearTicketSection {
@@ -739,6 +743,43 @@ header h1 {
     display: block;
   }
 }
+/* Estilos para los botones y el texto */
+#loadMoreBtn {
+  background-color: #525252; /* Azul brillante */
+  color: rgb(0, 0, 0); /* Texto blanco */
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 20px auto 0 auto;
+  display: block;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#loadMoreBtn:hover {
+  background-color: #414141; /* Azul más oscuro */
+  transform: scale(1.05); /* Aumentar ligeramente al pasar el mouse */
+}
+
+#loadMoreBtn:active {
+  background-color: #383838; /* Azul aún más oscuro */
+  transform: scale(0.95); /* Disminuir ligeramente al hacer clic */
+}
+
+/* Estilos para 'Sí' y 'No' */
+.yes {
+  color: #00ff2a !important; /* Verde */
+  font-weight: bold !important;
+}
+
+.no {
+  color: #ff0000 !important; /* Rojo */
+  font-weight: bold !important;
+}
+
 @media (max-width: 768px) {
   .tickets-table th,
   .tickets-table td {

@@ -3,6 +3,7 @@ const Ticket = require('../models/Ticket');
 const { getIO } = require('../helpers/socket');
 const User = require('../models/User');
 
+
 exports.createTicket = async (req, res) => {
   const { chasis, cod_pos, cant, comentario, cliente, rubro, tipo } = req.body;
 
@@ -266,5 +267,31 @@ exports.deleteTicket = async (req, res) => {
   } catch (error) {
     console.error('Error al eliminar ticket:', error);
     res.status(500).json({ error: 'Error al eliminar ticket' });
+  }
+};
+
+exports.updateLlego = async (req, res) => {
+  const { id } = req.params;
+  const { llego } = req.body;
+
+  try {
+    if (!['si', 'no'].includes(llego)) {
+      return res.status(400).send({ error: 'Valor inválido para "llego"' });
+    }
+
+    const updatedTicket = await Ticket.findByIdAndUpdate(
+      id,
+      { llego },
+      { new: true }
+    );
+
+    if (!updatedTicket) {
+      return res.status(404).send({ error: 'Ticket no encontrado' });
+    }
+
+    res.status(200).send({ message: 'Campo "Llegó" actualizado', ticket: updatedTicket });
+  } catch (error) {
+    console.error('Error al actualizar el campo "Llegó":', error);
+    res.status(500).send({ error: 'Error interno del servidor' });
   }
 };

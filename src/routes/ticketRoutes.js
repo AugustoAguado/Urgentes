@@ -9,6 +9,7 @@ const {
   getComments,
   markCommentsAsRead,
   deleteTicket,
+  updateLlego, // Importamos el nuevo controlador
 } = require('../controllers/ticketController');
 const { auth } = require('../middleware/authMiddleware');
 
@@ -19,7 +20,7 @@ router.patch('/:id', auth, resolveTicket);
 router.post('/:id/comments', auth, addComment);
 router.get('/:id/comments', auth, getComments);
 router.post('/:id/mark-read', auth, markCommentsAsRead);
+router.patch('/:id/update-llego', auth, updateLlego); // Nueva ruta para actualizar el campo "llego"
 router.delete('/:id', auth, deleteTicket);
-
 
 module.exports = router;

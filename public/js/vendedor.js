@@ -160,6 +160,8 @@ async function fetchMyTickets() {
   }
 }
 
+let ticketsToShow = 15; // Número inicial de tickets a mostrar
+let currentOffset = 0; // Desplazamiento para cargar más tickets
 
 function renderTickets(tickets) {
   ticketList.innerHTML = `
@@ -182,35 +184,34 @@ function renderTickets(tickets) {
       </thead>
       <tbody id="ticketsTbody"></tbody>
     </table>
+    <button id="loadMoreBtn" class="btn load-more">Cargar más</button>
   </div>
   `;
 
-
   const ticketsTbody = document.getElementById('ticketsTbody');
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  const visibleTickets = tickets.slice(0, ticketsToShow + currentOffset);
 
-  
-
-  tickets.forEach(ticket => {
-    // Definir el estadoClass para el círculo del estado, no para toda la fila
+  visibleTickets.forEach(ticket => {
     const estadoClass =
       ticket.estado === 'resuelto'
         ? 'estado-verde'
         : ticket.estado === 'negativo'
         ? 'estado-rojo'
         : 'estado-naranja';
-  
+
     const tipoClass =
       ticket.tipo === 'consulta'
         ? 'badge-consulta'
         : ticket.tipo === 'revision'
         ? 'badge-revision'
-        : 'badge-urg'; // Para 'urg'
-  
-    // Crear el elemento `tr` para la fila del ticket
+        : 'badge-urg';
+        
+    const avisadoClass = ticket.avisado ? 'yes' : 'no';
+    const pagoClass = ticket.pago ? 'yes' : 'no';
+
     const row = document.createElement('tr');
-    row.classList.add('ticket-header'); // Quitar el estadoClass de aquí
-  
-    // Asignar el contenido HTML de la fila
+    row.classList.add('ticket-header');
     row.innerHTML = `
       <td class="center-col">${new Date(ticket.fecha).toLocaleDateString('es-ES')}</td>
       <td class="center-col">
@@ -229,21 +230,17 @@ function renderTickets(tickets) {
             : ''
         }
       </td>
-      <td class="center-col">${ticket.avisado ? 'Sí' : 'No'}</td>
-      <td class="center-col">${ticket.pago ? 'Sí' : 'No'}</td>
+      <td class="center-col ${avisadoClass}">${ticket.avisado ? 'Sí' : 'No'}</td>
+      <td class="center-col ${pagoClass}">${ticket.pago ? 'Sí' : 'No'}</td>
       <td class="center-col">
-        <span class="estado-circulo ${estadoClass}"></span> <!-- Aquí va el color del estado -->
+        <span class="estado-circulo ${estadoClass}"></span>
         ${ticket.estado}
       </td>
     `;
-  
-  
-  
 
     const detailRow = document.createElement('tr');
     detailRow.classList.add('ticket-detalle');
 
-    // Mantén abierto si openTicketId coincide
     if (ticket._id === openTicketId) {
       detailRow.style.display = '';
       row.classList.add('open');
@@ -411,7 +408,20 @@ function renderTickets(tickets) {
       }
     });
   });
+
+  // Lógica para cargar más tickets
+  if (ticketsToShow + currentOffset >= tickets.length) {
+    loadMoreBtn.style.display = 'none';
+  } else {
+    loadMoreBtn.style.display = 'block';
+    loadMoreBtn.onclick = () => {
+      currentOffset += ticketsToShow;
+      renderTickets(tickets);
+    };
+  }
 }
+
+
 
 async function fetchComments(ticketId, commentsList) {
   try {
