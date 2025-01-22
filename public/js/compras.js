@@ -531,7 +531,7 @@ exportXLSXButton.addEventListener('click', async () => {
     const worksheet = workbook.addWorksheet('Tickets Filtrados');
 
     // Encabezados
-    const headers = ['Fecha', 'Código', 'Proveedor', 'Usuario', 'Cliente', 'Ingreso'];
+    const headers = ['Fecha', 'Código', 'Cantidad','Proveedor', 'Usuario', 'Cliente', 'Ingreso'];
     worksheet.addRow(headers);
 
     // Estilos para los encabezados
@@ -568,6 +568,7 @@ exportXLSXButton.addEventListener('click', async () => {
         const rowData = [
           ticket.fecha ? new Date(ticket.fecha).toLocaleDateString('es-ES') : 'N/A',
           ticket.codigo || 'N/A',
+          ticket.cantidad_resuelta || 'N/A',
           ticket.proveedor || 'N/A',
           ticket.usuario?.username || 'N/A',
           ticket.cliente || 'N/A',
@@ -618,8 +619,6 @@ exportXLSXButton.addEventListener('click', async () => {
     alert('Ocurrió un error al exportar los tickets.');
   }
 });
-
-
 
 
 fetchAllTickets();
