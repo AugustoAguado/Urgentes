@@ -64,6 +64,9 @@ function renderTickets(tickets) {
       <tbody>
         ${tickets.map(ticket => {
           const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES');
+          chasisTruncado = ticket.chasis ? ticket.chasis.slice(0, 10) + '...' : 'N/A';
+          codPosTruncado = ticket.cod_pos ? ticket.cod_pos.slice(0, 10) + '...' : 'N/A';
+          clienteTruncado = ticket.cliente ? ticket.cliente.slice(0, 10) + '...' : 'N/A';
           const estadoClass = 
             ticket.estado === 'resuelto' ? 'estado-verde' : 
             ticket.estado === 'negativo' ? 'estado-rojo' : 
@@ -73,10 +76,10 @@ function renderTickets(tickets) {
               <td class="center-col">${ticket.shortId}</td>
               <td class="center-col">${fechaFormateada}</td>
               <td>${ticket.usuario?.username || 'N/A'}</td>
-              <td>${ticket.chasis || 'N/A'}</td>
-              <td>${ticket.cod_pos || 'N/A'}</td>
+              <td>${chasisTruncado || 'N/A'}</td>
+              <td>${ codPosTruncado || 'N/A'}</td>
               <td class="center-col">${ticket.cant || 'N/A'}</td>
-              <td>${ticket.cliente || 'N/A'}</td>
+              <td>${clienteTruncado || 'N/A'}</td>
               <td class="center-col">
                 <span class="estado-circulo ${estadoClass}"></span>
                 ${ticket.estado}
