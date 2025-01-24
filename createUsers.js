@@ -198,6 +198,12 @@ async function createUsers() {
         role: 'compras',
         rubros: TODOS_LOS_RUBROS
       },
+      {
+        username: 'cdr',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
   
     ]);
 

@@ -23,12 +23,13 @@ socket.on('comentariosLeidos', ({ ticketId, role }) => {
   showOrHideDotFilter(allTickets);
 });
 
-if (!token || role !== 'vendedor') {
+if (!token || role !== 'cdr') {
   window.location.href = 'index.html';
 }
 
 const tituloVendedor = document.getElementById('tituloVendedor');
 if (tituloVendedor && username) {
+  username = username.toUpperCase()
   tituloVendedor.textContent = `${username} - Tickets`;
 }
 
@@ -313,10 +314,6 @@ function renderTickets(tickets) {
       <div class="comments-section">
         <h4>Comentarios</h4>
         <ul class="comments-list" id="comments-${ticket._id}"></ul>
-        <form class="comment-form" data-ticket-id="${ticket._id}">
-          <textarea name="comment" placeholder="Agregar un comentario..." required></textarea>
-          <button type="submit" class="btn">Agregar Comentario</button>
-        </form>
       </div>
     `;
 
@@ -391,37 +388,7 @@ function renderTickets(tickets) {
     
 
 
-    const commentForm = detailCell.querySelector('.comment-form');
     const commentsList = detailCell.querySelector(`#comments-${ticket._id}`);
-    commentForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(commentForm);
-      const payload = {
-        texto: formData.get('comment'),
-        fecha: new Date().toISOString(),
-      };
-      try {
-        const res = await fetch(`/tickets/${ticket._id}/comments`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        });
-        if (res.ok) {
-          const newComment = await res.json();
-          addCommentToList(commentsList, newComment);
-          commentForm.reset();
-        } else {
-          const error = await res.json();
-          alert(error.message || 'Error al agregar comentario');
-        }
-      } catch (error) {
-        console.error('Error al agregar comentario:', error);
-        alert('Error al procesar la solicitud');
-      }
-    });
     fetchComments(ticket._id, commentsList);
 
     row.addEventListener('click', async () => {

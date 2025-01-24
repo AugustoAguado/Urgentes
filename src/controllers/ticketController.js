@@ -7,9 +7,9 @@ const User = require('../models/User');
 exports.createTicket = async (req, res) => {
   const { chasis, cod_pos, cant, comentario, cliente, rubro, tipo } = req.body;
 
-  if (!req.user || req.user.role !== 'vendedor') {
-    return res.status(403).json({ error: 'Solo un vendedor puede crear tickets' });
-  }
+  if (!req.user || (req.user.role !== 'vendedor' && req.user.role !== 'cdr')) {
+    return res.status(403).json({ error: 'Solo un vendedor o CDR puede crear tickets' });
+  }  
 
   try {
     // Encuentra todos los compradores que gestionan este rubro
@@ -49,13 +49,13 @@ exports.createTicket = async (req, res) => {
 
 exports.getMyTickets = async (req, res) => {
   try {
-    if (!['vendedor', 'compras'].includes(req.user.role)) {
+    if (!['vendedor', 'compras', 'cdr'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Acceso no autorizado' });
     }
 
     let tickets;
 
-    if (req.user.role === 'vendedor') {
+    if (req.user.role === 'vendedor' || req.user.role === 'cdr') {
       // Los vendedores ven solo sus tickets
       tickets = await Ticket.find({ usuario: req.user.id }).sort({ fecha: -1 });
     } else if (req.user.role === 'compras') {
@@ -109,7 +109,7 @@ exports.resolveTicket = async (req, res) => {
   console.log('resolveTicket -> ID del ticket:', req.params.id);
   console.log('resolveTicket -> Rol del usuario:', req.user.role);
 
-  if (!['compras', 'vendedor'].includes(req.user.role)) {
+  if (!['compras', 'vendedor', 'cdr' ].includes(req.user.role)) {
     return res.status(403).json({ error: 'Acceso no autorizado' });
   }
 
@@ -124,7 +124,7 @@ exports.resolveTicket = async (req, res) => {
     }
 
     // Actualizaciones según el rol
-    if (req.user.role === 'vendedor') {
+    if (req.user.role === 'vendedor' || req.user.role === 'cdr') {
       if (avisado !== undefined) ticket.avisado = avisado;
       if (pago !== undefined) ticket.pago = pago;
     }
@@ -231,7 +231,7 @@ exports.markCommentsAsRead = async (req, res) => {
       return res.status(404).json({ error: 'Ticket no encontrado' });
     }
 
-    if (req.user.role === 'vendedor') {
+    if (req.user.role === 'vendedor' || req.user.role === 'cdr') {
       ticket.nuevosComentarios.vendedor = false;
     } else if (req.user.role === 'compras') {
       ticket.nuevosComentarios.compras = false;

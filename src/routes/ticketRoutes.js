@@ -26,4 +26,5 @@ router.delete('/:id', auth, deleteTicket);
 router.patch('/:id/anular', auth, cancelTicket);
 
 
+
 module.exports = router;

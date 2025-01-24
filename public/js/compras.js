@@ -578,7 +578,7 @@ async function handleCommentSubmit(e) {
 
 const tituloCompras = document.getElementById('tituloCompras');
 if (tituloCompras && username) {
-  tituloCompras.textContent = `${username.toUpperCase()} - Urgentes`;
+  tituloCompras.textContent = `${username.toUpperCase()} - Tickets`;
 }
 
 exportXLSXButton.addEventListener('click', async () => {

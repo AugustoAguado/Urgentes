@@ -32,6 +32,8 @@ loginForm.addEventListener('submit', async (e) => {
         window.location.href = 'compras.html';
       } else if (data.role === 'admin') {
         window.location.href = 'admin.html';
+      } else if (data.role === 'cdr') {
+        window.location.href = 'cdr.html';
       } else {
         alert('Rol desconocido');
       }
