@@ -269,6 +269,7 @@ function renderTickets(tickets) {
           <tr><th>INGRESO</th><td>${ticket.ingreso || '--'}</td></tr>
           <tr><th>CANTIDAD RESUELTA</th><td>${ticket.cantidad_resuelta || '--'}</td></tr>
           <tr><th>COMENTARIO</th><td>${ticket.comentario_resolucion || '--'}</td></tr>
+          <tr><th>CLIENTE</th><td>${ticket.cliente || '--'}</td></tr>
           <tr><th>AVISADO</th><td>${ticket.avisado ? 'Sí' : 'No'}</td></tr>
           <tr><th>PAGO</th><td>${ticket.pago ? 'Sí' : 'No'}</td></tr>
         </table>
