@@ -204,7 +204,54 @@ async function createUsers() {
         role: 'cdr',
         rubros: []
       },
-  
+      {
+        username: 'ensenada',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
+      {
+        username: 'citybell',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
+      {
+        username: 'md72',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
+      {
+        username: 'olmos',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
+      {
+        username: 'bks',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
+      {
+        username: 'foti',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
+      {
+        username: 'dolores',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
+      {
+        username: 'rc',
+        password: await bcrypt.hash('cdr1075', 10),
+        role: 'cdr',
+        rubros: []
+      },
     ]);
 
     console.log('Usuarios creados con éxito.');

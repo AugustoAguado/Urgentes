@@ -652,20 +652,22 @@ html, body {
   border-radius: 12px; /* Forma redondeada */
   font-size: 0.9em;
   font-weight: bold;
-  color: #fff; /* Texto blanco */
+  color: #ffffff; /* Texto blanco */
   text-align: center;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5); /* Sombra */
 }
 
 .badge-consulta {
-  background-color: #57cfff; /* Verde */
+  background-color: #57cfff; 
 }
-
 .badge-revision {
-  background-color: #ffae00; /* Amarillo */
+  background-color: #ffee00; 
 }
-
+.badge-pendiente {
+  background-color: #ffa600; 
+}
 .badge-urg {
-  background-color: #FF6347; /* Rojo */
+  background-color: #FF6347; 
 }
 
 

@@ -518,6 +518,7 @@ html, body {
   font-weight: bold;
   color: #fff; /* Texto blanco */
   text-align: center;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5); /* Sombra */
 }
 
 .badge-consulta {
@@ -525,7 +526,7 @@ html, body {
 }
 
 .badge-revision {
-  background-color: #ffae00; /* Amarillo */
+  background-color: #ffd900; /* Amarillo */
 }
 
 .badge-urg {
@@ -608,6 +609,9 @@ html, body {
   }
 }
 
+.badge-pendiente {
+  background-color: #ff8800; /* Amarillo */
+}
 
 
 

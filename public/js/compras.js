@@ -156,12 +156,15 @@ function renderTickets(tickets) {
         ? 'estado-rojo'
         : 'estado-naranja';
 
-    const tipoClass =
-      ticket.tipo === 'consulta'
-        ? 'badge-consulta'
-        : ticket.tipo === 'revision'
-        ? 'badge-revision'
-        : 'badge-urg'; // Para 'urg'
+        const tipoClassMap = {
+          consulta: 'badge-consulta',
+          revision: 'badge-revision',
+          pendiente: 'badge-pendiente',
+          urgente: 'badge-urg'
+        };
+        
+        const tipoClass = tipoClassMap[ticket.tipo] || 'default-class';
+        
 
     const fechaFormateada = new Date(ticket.fecha).toLocaleDateString('es-ES');
 
@@ -329,12 +332,14 @@ function updateTicketModal(ticket) {
   document.getElementById('modalComentario').textContent = ticket.comentario || 'N/A';
 
   // Agregamos el tipo de ticket al modal
-  const tipoClass =
-  ticket.tipo === 'consulta'
-    ? 'badge-consulta'
-    : ticket.tipo === 'revision'
-    ? 'badge-revision'
-    : 'badge-urg'; // Para 'urgente'
+  const tipoClassMap = {
+    consulta: 'badge-consulta',
+    revision: 'badge-revision',
+    pendiente: 'badge-pendiente',
+    urgente: 'badge-urg'
+  };
+  
+  const tipoClass = tipoClassMap[ticket.tipo] || 'default-class';
 
 const tipoTicketElement = document.getElementById('modalTipo');
 if (tipoTicketElement) {

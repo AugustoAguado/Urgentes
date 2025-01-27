@@ -204,8 +204,8 @@ function renderTickets(tickets) {
     const tipoClass =
       ticket.tipo === 'consulta'
         ? 'badge-consulta'
-        : ticket.tipo === 'revision'
-        ? 'badge-revision'
+        : ticket.tipo === 'pendiente'
+        ? 'badge-pendiente'
         : 'badge-urg';
         
     const avisadoClass = ticket.avisado ? 'yes' : 'no';

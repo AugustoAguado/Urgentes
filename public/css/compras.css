@@ -515,6 +515,7 @@ header h1 {
   font-weight: bold;
   color: #fff; /* Texto blanco */
   text-align: center;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5); /* Sombra */
 }
 
 .badge-consulta {
@@ -522,7 +523,7 @@ header h1 {
 }
 
 .badge-revision {
-  background-color: #ffae00; /* Amarillo */
+  background-color: #ffd900; /* Amarillo */
 }
 
 .badge-urg {
@@ -599,6 +600,10 @@ header h1 {
 }
 .ticket-anulado:hover {
   background-color: #fa8686 !important;
+}
+
+.badge-pendiente {
+  background-color: #ff8800; /* Amarillo */
 }
 
 /* Responsive Design */

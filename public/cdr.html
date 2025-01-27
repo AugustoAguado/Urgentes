@@ -36,7 +36,7 @@
         <label for="tipoTicket">Tipo de Ticket:</label>
         <select id="tipoTicket" name="tipo">
           <option value="">--Seleccionar--</option>
-          <option value="revision">Revisión</option>
+          <option value="pendiente">Pendiente</option>
           <option value="urgente">Urgente</option>
         </select>
       </div>
@@ -288,8 +288,7 @@ function formatSelectOption(option) {
 
   // Define estilos personalizados según el valor
   const styles = {
-    consulta: 'background-color: #57cfff; color: white; padding: 2px 10px; border-radius: 12px;',
-    revision: 'background-color: #ffae00; color: black; padding: 2px 10px; border-radius: 12px;',
+    pendiente: 'background-color: #ffa600; color: white; padding: 2px 10px; border-radius: 12px;',
     urgente: 'background-color: #FF6347; color: white; padding: 2px 10px; border-radius: 12px;',
   };
 

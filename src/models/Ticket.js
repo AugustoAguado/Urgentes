@@ -20,7 +20,7 @@ const TicketSchema = new mongoose.Schema({
   rubro: { type: String },
   tipo: {
     type: String,
-    enum: ['consulta', 'revision', 'urgente'], // Restringimos a estos valores
+    enum: ['consulta', 'revision', 'urgente','pendiente'], // Restringimos a estos valores
     required: true
   },
   usuariosAsignados: [
