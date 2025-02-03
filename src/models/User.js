@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const UserSchema = new Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['vendedor', 'compras', 'admin', 'cdr'], required: true },
+  role: { type: String, enum: ['vendedor', 'compras', 'admin', 'cdr','admincdr'], required: true },
   // Array de rubros, cada rubro es un String
   rubros: [{ type: String }]
 });

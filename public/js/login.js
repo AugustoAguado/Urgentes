@@ -34,9 +34,13 @@ loginForm.addEventListener('submit', async (e) => {
         window.location.href = 'admin.html';
       } else if (data.role === 'cdr') {
         window.location.href = 'cdr.html';
+      } else if (data.role === 'admincdr') {
+        window.location.href = 'admincdr.html';
       } else {
         alert('Rol desconocido');
       }
+
+      
     } else {
       alert(data.error || 'Error al iniciar sesión');
     }

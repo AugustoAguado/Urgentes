@@ -252,6 +252,12 @@ async function createUsers() {
         role: 'cdr',
         rubros: []
       },
+      {
+        username: 'admincdr',
+        password: await bcrypt.hash('admincdr1075', 10),
+        role: 'admincdr',
+        rubros: []
+      },
     ]);
 
     console.log('Usuarios creados con éxito.');

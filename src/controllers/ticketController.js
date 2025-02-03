@@ -49,21 +49,20 @@ exports.createTicket = async (req, res) => {
 
 exports.getMyTickets = async (req, res) => {
   try {
-    if (!['vendedor', 'compras', 'cdr'].includes(req.user.role)) {
+    // Incluir 'admincdr' si deseas que también pueda llamar a "getMyTickets"
+    if (!['vendedor', 'compras', 'cdr', 'admincdr'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Acceso no autorizado' });
     }
-
+    
     let tickets;
-
     if (req.user.role === 'vendedor' || req.user.role === 'cdr') {
-      // Los vendedores ven solo sus tickets
       tickets = await Ticket.find({ usuario: req.user.id }).sort({ fecha: -1 });
-    } else if (req.user.role === 'compras') {
+    } 
+    else if (req.user.role === 'compras' || req.user.role === 'admincdr') {
+      // Reutilizas la misma lógica de 'compras':
       if (req.user.username === 'comprasadmin') {
-        // El admin de compras puede ver todos los tickets
         tickets = await Ticket.find({}).sort({ fecha: -1 });
       } else {
-        // Compradores específicos ven solo los tickets asignados
         tickets = await Ticket.find({ usuariosAsignados: req.user.id }).sort({ fecha: -1 });
       }
     }
@@ -79,16 +78,25 @@ exports.getMyTickets = async (req, res) => {
 
 
 exports.getAllTickets = async (req, res) => {
-  if (!['compras', 'admin'].includes(req.user.role)) {
+  // Se permite acceso a 'compras', 'admin' Y 'admincdr'
+  if (!['compras', 'admin', 'admincdr'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Acceso no autorizado' });
   }
 
   try {
     let filter = {};
+
+    // Si es 'compras' (no admin) => solo los asignados
     if (req.user.role === 'compras' && req.user.username !== 'comprasadmin') {
-      // Solo tickets asignados al usuario actual de compras
       filter = { usuariosAsignados: req.user.id };
     }
+    // Si es 'admincdr' => filtrar los tickets cuyo creador sea de rol 'cdr'
+    else if (req.user.role === 'admincdr') {
+      // Buscar todos los usuarios con rol 'cdr'
+      const cdrUserIds = await User.find({ role: 'cdr' }).distinct('_id');
+      filter = { usuario: { $in: cdrUserIds } };
+    }
+    // Si es 'admin' o 'comprasadmin' => no hay filtro (ven todo)
 
     const tickets = await Ticket.find(filter)
       .sort({ fecha: -1 })
@@ -101,6 +109,7 @@ exports.getAllTickets = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener tickets' });
   }
 };
+
 
 
 
@@ -177,11 +186,12 @@ exports.addComment = async (req, res) => {
     ticket.comentarios.push(nuevoComentario);
 
     // Marcar nuevos comentarios para la otra parte
-    if (req.user.role === 'vendedor') {
+    if (req.user.role === 'vendedor' || req.user.role === 'admincdr') {
       ticket.nuevosComentarios.compras = true;
-    } else if (req.user.role === 'compras') {
+    } else if (req.user.role === 'compras' || req.user.role === 'admincdr') {
       ticket.nuevosComentarios.vendedor = true;
     }
+    
 
     await ticket.save();
 

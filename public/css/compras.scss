@@ -290,14 +290,21 @@ html, body {
   }
   
   .comments-list li {
-    max-width: 60%;
-    padding: 10px;
+    width: 50%;              /* Mantener la burbuja al 50% del contenedor */
+    background: #333; 
+    color: #eee;
+    border: 1px solid #444; 
     border-radius: 5px;
-    border: 1px solid #444;
-    background: #333;
+    margin-bottom: 10px;
     position: relative;
-    width: 50%;
+    padding: 10px;
+  
+    /* Rompe palabras largas, pero SIN forzar saltos de línea como pre-wrap */
+    white-space: normal;     
+    word-wrap: break-word;  
+    overflow-wrap: break-word; 
   }
+  
   
   .comments-list li.self {
     align-self: flex-end;
@@ -611,6 +618,26 @@ html, body {
 
 .badge-pendiente {
   background-color: #ff8800; /* Amarillo */
+}
+
+
+.delete-ticket-btn {
+  background-color: #f44336; /* Rojo tipo 'danger' */
+  color: #fff;               /* Texto blanco */
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.delete-ticket-btn:hover {
+  background-color: #e53935; /* Rojo más oscuro al pasar el mouse */
+}
+
+.delete-ticket-btn:active {
+  background-color: #c62828; /* Rojo aún más intenso al hacer clic */
 }
 
 

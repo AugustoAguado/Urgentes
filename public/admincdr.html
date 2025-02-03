@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compras - Tickets</title>
+  <link rel="icon" href="./assets/IsologoBlanco.webp" type="image/x-icon">
+  <link rel="stylesheet" href="./css/compras.css">
+</head>
+<body>
+  <header>
+    <img class="logo-page" src="./assets/IsologoBlanco.webp" alt="Logo">
+    <h1 id="tituloCompras">Compras - Tickets</h1>
+    <a id="logoutBtn"><img class="logoLogOut" src="./assets/cerrar-sesion.svg" alt="Cerrar sesión"></a>
+  </header>
+  <section class="urgentes-section">
+    <h2>Todos los Tickets</h2>
+    <input class="search-bar" type="text" id="filterInput" placeholder="Buscar">
+    <div class="filtro-estado-container">
+      <label for="estadoFiltro">Filtrar por estado:</label>
+      <select id="estadoFiltro">
+        <option value="">(Ver todos)</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="resuelto">Resuelto</option>
+        <option value="negativo">Negativo</option>
+      </select>
+      <div class="filtro-tipo-container">
+        <label for="tipoFiltro">Filtrar por tipo:</label>
+        <select id="tipoFiltro">
+          <option value="">(Ver todos)</option>
+          <option value="consulta">Consulta</option>
+          <option value="revision">Revisión</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+      
+      <div class="filter-container" style="display: flex; align-items: center; gap: 10px;">
+        <input type="date" id="fechaInicio" class="filter-date" placeholder="Fecha Inicio">
+        <input type="date" id="fechaFin" class="filter-date" placeholder="Fecha Fin">
+      </div>
+      <div id="buttonContainer" style="text-align: right; margin-top: 10px;">
+        <button id="exportXLSXButton" class="btn">Exportar a Excel</button>
+      </div>
+      
+      <div id="dotFilterSection" style="display: none;">
+        <input type="checkbox" id="onlyDotsFiltro">
+        <label>Mostrar comentarios sin leer</label>
+      </div>
+    </div>   
+    <div id="comprasTicketList">
+      <table class="tickets-table">
+        <thead>
+          <tr>
+            <th class="center-col">FECHA</th>
+            <th>USUARIO</th>
+            <th>CHASIS</th>
+            <th>COD/POS</th>
+            <th class="center-col">CANT</th>
+            <th>CLIENTE</th>
+            <th>COMENTARIO</th>
+            <th class="center-col">C</th>
+            <th class="center-col">ESTADO</th>
+          </tr>
+        </thead>
+        <tbody id="ticketsTbody"></tbody>
+      </table>
+    </div>  
+  </section>
+
+  <!-- Overlay separado del modal -->
+  <div class="overlay" id="overlay" style="display: none;"></div>
+
+  <!-- Modal -->
+  <div id="ticketModal" class="ticket-modal" style="display: none;">
+    <div class="modal-content">
+      <h3>Detalles del Urgente</h3>
+      <span class="short-id" id="modalShortId"></span>
+      <table class="ticket-table">
+        <tr><th>TIPO</th><td id="modalTipo"></td></tr>
+        <tr><th>Vendedor</th><td id="modalVendedor"></td></tr>
+        <tr><th>CHASIS</th><td id="modalChasis"></td></tr>
+        <tr><th>COD/POS</th><td id="modalCodPos"></td></tr>
+        <tr><th>CANT</th><td id="modalCant"></td></tr>
+        <tr><th>CLIENTE</th><td id="modalCliente"></td></tr>
+        <tr><th>COMENTARIO</th><td id="modalComentario"></td></tr>
+      </table>
+      <div id="modalResolucionSection"></div>
+      <div class="comments-section">
+        <h4>Comentarios</h4>
+        <ul class="comments-list" id="commentsList"></ul>
+        <form class="comment-form" id="commentForm">
+          <textarea name="comment" placeholder="Agregar un comentario..." required></textarea>
+          <button type="submit" class="btn">Agregar Comentario</button>
+        </form>
+      </div>
+      <div id="modalResolverFormSection"></div>
+    </div>
+  </div>
+  
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/admincdr.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+</body>
+</html>
