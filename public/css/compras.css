@@ -630,6 +630,10 @@ header h1 {
   background-color: #c62828; /* Rojo aún más intenso al hacer clic */
 }
 
+.estado-anulado {
+  background: #460e00;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .mis-tickets,

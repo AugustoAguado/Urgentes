@@ -154,6 +154,8 @@ function renderTickets(tickets) {
         ? 'estado-verde'
         : ticket.estado === 'negativo'
         ? 'estado-rojo'
+        : ticket.estado === 'anulado'
+        ? 'estado-anulado'
         : 'estado-naranja';
 
         const tipoClassMap = {
