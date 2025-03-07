@@ -71,6 +71,10 @@ ticketForm.addEventListener('submit', async (e) => {
     if (res.ok) {
       showInAppAlert('Ticket creado con éxito.');
       document.getElementById('crearTicketSection').style.display = 'none';
+      ticketForm.reset(); 
+      $('#rubro').val('').trigger('change');
+      $('#tipoTicket').val('').trigger('change');
+      document.getElementById('crearTicketSection').style.display = 'none';
       fetchMyTickets();
     } else {
       showInAppAlert(data.error || 'Error al crear el ticket');
