@@ -452,6 +452,14 @@ html, body {
     color: #757575;
   }
   
+  .hora{
+    position: absolute;
+    top: 1.5rem;
+    right: 0;
+    padding: 0.5rem;
+    color: #757575;
+  }
+
   #ticketsTbody tr:nth-child(odd) {
     background: #222222; /* Color para filas impares */
   }

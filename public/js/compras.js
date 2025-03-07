@@ -326,6 +326,8 @@ function updateTicketModal(ticket) {
 
   // Actualizamos la información del modal
   document.getElementById('modalShortId').textContent = `ID: ${ticket.shortId}`;
+  document.getElementById('modalFecha').textContent = `H: ${new Date(ticket.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`;
+  document.getElementById('modalTipo').textContent = ticket.tipo || 'N/A';  
   document.getElementById('modalVendedor').textContent = ticket.usuario?.username || 'Desconocido';
   document.getElementById('modalChasis').textContent = ticket.chasis || 'N/A';
   document.getElementById('modalCodPos').textContent = ticket.cod_pos || 'N/A';
