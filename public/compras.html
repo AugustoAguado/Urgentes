@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Compras - Tickets</title>
   <link rel="icon" href="./assets/IsologoBlanco.webp" type="image/x-icon">
-  <link rel="stylesheet" href="./css/compras.css">
+  <link rel="stylesheet" href="./css/compras.css" />
 </head>
 <body>
   <header>
-    <img class="logo-page" src="./assets/IsologoBlanco.webp" alt="Logo">
+    <img class="logo-page" src="./assets/IsologoBlanco.webp" alt="Logo" />
     <h1 id="tituloCompras">Compras - Tickets</h1>
-    <a id="logoutBtn"><img class="logoLogOut" src="./assets/cerrar-sesion.svg" alt="Cerrar sesión"></a>
+    <a id="logoutBtn">
+      <img class="logoLogOut" src="./assets/cerrar-sesion.svg" alt="Cerrar sesión" />
+    </a>
   </header>
+
   <section class="urgentes-section">
     <h2>Todos los Tickets</h2>
-    <input class="search-bar" type="text" id="filterInput" placeholder="Buscar">
+    <input class="search-bar" type="text" id="filterInput" placeholder="Buscar" />
+    
     <div class="filtro-estado-container">
       <label for="estadoFiltro">Filtrar por estado:</label>
       <select id="estadoFiltro">
@@ -24,6 +28,7 @@
         <option value="resuelto">Resuelto</option>
         <option value="negativo">Negativo</option>
       </select>
+
       <div class="filtro-tipo-container">
         <label for="tipoFiltro">Filtrar por tipo:</label>
         <select id="tipoFiltro">
@@ -35,18 +40,20 @@
       </div>
       
       <div class="filter-container" style="display: flex; align-items: center; gap: 10px;">
-        <input type="date" id="fechaInicio" class="filter-date" placeholder="Fecha Inicio">
-        <input type="date" id="fechaFin" class="filter-date" placeholder="Fecha Fin">
+        <input type="date" id="fechaInicio" class="filter-date" placeholder="Fecha Inicio" />
+        <input type="date" id="fechaFin" class="filter-date" placeholder="Fecha Fin" />
       </div>
+      
       <div id="buttonContainer" style="text-align: right; margin-top: 10px;">
         <button id="exportXLSXButton" class="btn">Exportar a Excel</button>
       </div>
       
       <div id="dotFilterSection" style="display: none;">
-        <input type="checkbox" id="onlyDotsFiltro">
+        <input type="checkbox" id="onlyDotsFiltro" />
         <label>Mostrar comentarios sin leer</label>
       </div>
-    </div>   
+    </div>
+
     <div id="comprasTicketList">
       <table class="tickets-table">
         <thead>
@@ -64,7 +71,7 @@
         </thead>
         <tbody id="ticketsTbody"></tbody>
       </table>
-    </div>  
+    </div>
   </section>
 
   <!-- Overlay separado del modal -->
@@ -76,6 +83,7 @@
       <h3>Detalles del Urgente</h3>
       <span class="short-id" id="modalShortId"></span>
       <span class="hora" id="modalFecha"></span>
+      
       <table class="ticket-table">
         <tr><th>TIPO</th><td id="modalTipo"></td></tr>
         <tr><th>Vendedor</th><td id="modalVendedor"></td></tr>
@@ -85,162 +93,13 @@
         <tr><th>CLIENTE</th><td id="modalCliente"></td></tr>
         <tr><th>COMENTARIO</th><td id="modalComentario"></td></tr>
       </table>
-     
-      
-    
-    <div id="modalResolucionSection"></div>
 
-  
-    
-    <div id="modalResolverFormSection"></div>
-  </div>
-  <div class="comments-section">
-    <h4>Comentarios</h4>
-    <ul class="comments-list" id="commentsList"></ul>
-    <form class="comment-form" id="commentForm">
-      <textarea name="comment" placeholder="Agregar un comentario..." required></textarea>
-      <button type="submit" class="btn">Agregar Comentario</button>
-    </form>
-  </div>
-  <small>Rubro actual: <span id="rubroActual">N/A</span></small>
-<button id="btnChangeRubro" style="background-color:red; color:white; border:none; padding:6px 10px; margin-left:10px; cursor:pointer;">
-C
-</button>
-
-<!-- Contenedor oculto para el select de rubros -->
-<div id="rubroSelectContainer" style="display:none; margin-top:10px;">
-<select id="rubroSelect">
-  <option value="">--Seleccionar--</option>
-  <option value="AMORTIGUADORES LIVIANOS">AMORTIGUADORES LIVIANOS (AMO)</option>
-  <option value="AMORTIGUADORES VASTAGO CORTO">AMORTIGUADORES VASTAGO CORTO (AVC)</option>
-  <option value="BUJES CAZOLETAS Y ELEMENTOS DE GOMAMETAL">BUJES CAZOLETAS Y ELEMENTOS DE GOMAMETAL (BU)</option>
-  <option value="CREMALLERA CAJA DE DIRECCION MECANICA">CREMALLERA CAJA DE DIRECCION MECANICA (CRE)</option>
-  <option value="DESPIECE SYD SUSPENSION Y DIRECCION">DESPIECE SYD SUSPENSION Y DIRECCION (DESYD)</option>
-  <option value="PARRILLA DE SUSPENSION">PARRILLA DE SUSPENSION (PS)</option>
-  <option value="RESORTES DE SUSPENSION">RESORTES DE SUSPENSION (RS)</option>
-  <option value="RESORTES DEPORTIVOS">RESORTES DEPORTIVOS (RD)</option>
-  <option value="SUSPENSION Y DIRECCION">SUSPENSION Y DIRECCION (SYD)</option>
-  <option value="AMORTIGUADORES PESADOS-CAMIONES">AMORTIGUADORES PESADOS-CAMIONES (AMO)</option>
-  <option value="CREMALLERA HIDRAULICA">CREMALLERA HIDRAULICA (CNH)</option>
-  <option value="A DETERMINAR">A DETERMINAR (NADA)</option>
-  <option value="ACCESORIOS">ACCESORIOS (ACC)</option>
-  <option value="ADITIVOS">ADITIVOS (ADT)</option>
-  <option value="AHE ACTUADORES HIDRAULICOS DE EMBRAGUES">AHE ACTUADORES HIDRAULICOS DE EMBRAGUES (AHE)</option>
-  <option value="AMORTIGUADORES OFFROAD">AMORTIGUADORES OFFROAD (AOR)</option>
-  <option value="BARRA ESTABILIZADORA">BARRA ESTABILIZADORA (BE)</option>
-  <option value="BARRAS DE TORSION">BARRAS DE TORSION (BART)</option>
-  <option value="BARRAS TENSORAS">BARRAS TENSORAS (BTEN)</option>
-  <option value="BARRAS Y EXTREMOS LARGOS DE DIRECCION">BARRAS Y EXTREMOS LARGOS DE DIRECCION (CDB)</option>
-  <option value="BASTIDOR">BASTIDOR (BAST)</option>
-  <option value="BOMBA DE CEBADO COMBUSTIBLE">BOMBA DE CEBADO COMBUSTIBLE (BOC)</option>
-  <option value="BOMBA DE DIRECCION HIDRAULICA">BOMBA DE DIRECCION HIDRAULICA (BH)</option>
-  <option value="BOMBA DEPRESORA O DE VACIO">BOMBA DEPRESORA O DE VACIO (BDV)</option>
-  <option value="BOMBA EMBRAGUE (PEDAL)">BOMBA EMBRAGUE (PEDAL) (BOE)</option>
-  <option value="BOMBA FRENO">BOMBA FRENO (BOF)</option>
-  <option value="BOMBIN EMBRAGUE (CAJA)">BOMBIN EMBRAGUE (CAJA) (BBE)</option>
-  <option value="CABLE ACELERADOR">CABLE ACELERADOR (CA)</option>
-  <option value="CABLE EMBRAGUE">CABLE EMBRAGUE (CE)</option>
-  <option value="CABLE FRENO">CABLE FRENO (CF)</option>
-  <option value="CABLE SELECTORA">CABLE SELECTORA (CS)</option>
-  <option value="CADENA PARA NIEVE">CADENA PARA NIEVE (NADA)</option>
-  <option value="CAJAS Y CAJONES">CAJAS Y CAJONES (INSUMOS)</option>
-  <option value="CILINDRO DE RUEDA">CILINDRO DE RUEDA (CR)</option>
-  <option value="CONDENSADORES">CONDENSADORES (COND)</option>
-  <option value="CORONAS DE ARRANQUE">CORONAS DE ARRANQUE (CA)</option>
-  <option value="CORREA DISTRIBUCION DENTADAS">CORREA DISTRIBUCION DENTADAS (CO)</option>
-  <option value="CRAPODINAS MECANICAS EMBRAGUE">CRAPODINAS MECANICAS EMBRAGUE (CME)</option>
-  <option value="CREMALLERA REPARADA HIDRAULICA">CREMALLERA REPARADA HIDRAULICA (FER)</option>
-  <option value="CREMALLERA REPARADA MECANICA">CREMALLERA REPARADA MECANICA (FER)</option>
-  <option value="CRUCETAS">CRUCETAS (CRC)</option>
-  <option value="CUBRECARTER">CUBRECARTER (CART)</option>
-  <option value="CUERPOS">CUERPOS (FER)</option>
-  <option value="DESPIECE EMBRAGUES">DESPIECE EMBRAGUES (DESEM)</option>
-  <option value="DESPIECE FRENO">DESPIECE FRENO (DFR)</option>
-  <option value="DESPIECE SELECTORA Y VARILLAJE DE CAMBIO">DESPIECE SELECTORA Y VARILLAJE DE CAMBIO (DSV)</option>
-  <option value="DESPIECE TERMICA">DESPIECE TERMICA (ABZ)</option>
-  <option value="DESPIECE TRANSMISION">DESPIECE TRANSMISION (ST)</option>
-  <option value="DISCOS Y CAMPANAS">DISCOS Y CAMPANAS (DF)</option>
-  <option value="EJE TRASEROS">EJE TRASEROS (ET)</option>
-  <option value="ELASTICO">ELASTICO (ELAST)</option>
-  <option value="EMBRAGUE REPARADO">EMBRAGUE REPARADO (EMR)</option>
-  <option value="EMBRAGUES">EMBRAGUES (EM)</option>
-  <option value="FLEXIBLE DE FRENO Y EMBRAGUE">FLEXIBLE DE FRENO Y EMBRAGUE (FFE)</option>
-  <option value="FUELLE Y TOPES SUSPENSION DELANTEROS Y TRASEROS">FUELLE Y TOPES SUSPENSION DELANTEROS Y TRASEROS (TYF)</option>
-  <option value="FUELLE DIRECCION CREMALLERA">FUELLE DIRECCION CREMALLERA (FD)</option>
-  <option value="FUELLE TRANSMISION LADO RUEDA Y CAJA">FUELLE TRANSMISION LADO RUEDA Y CAJA (FT)</option>
-  <option value="GENERAL">GENERAL (NADA)</option>
-  <option value="GUANTES">GUANTES (GT)</option>
-  <option value="GUIA DE DIRECTA">GUIA DE DIRECTA (GD)</option>
-  <option value="HERRAMIENTAS">HERRAMIENTAS (HR)</option>
-  <option value="HIDROLAVADORA-GENERADOR-COMPRESOR">HIDROLAVADORA-GENERADOR-COMPRESOR (HR)</option>
-  <option value="HOMOCINÉTICAS Y DESLIZANTES CAJA Y CARDAN">HOMOCINÉTICAS Y DESLIZANTES CAJA Y CARDAN (HL)</option>
-  <option value="HORQUILLAS">HORQUILLAS (HORQ)</option>
-  <option value="INSUMOS">INSUMOS (INSUMOS)</option>
-  <option value="KIT DE PERNOS Y PUNTA DE EJE">KIT DE PERNOS Y PUNTA DE EJE (KPEJ)</option>
-  <option value="LAVA AUTOS">LAVA AUTOS (ACC)</option>
-  <option value="MANCHON">MANCHON (MAN)</option>
-  <option value="MANGUERAS">MANGUERAS (MAR)</option>
-  <option value="MANGUETAS">MANGUETAS (MANG)</option>
-  <option value="MAZA Y PUNTA DE EJE CON Y SIN RULEMAN">MAZA Y PUNTA DE EJE CON Y SIN RULEMAN (MR)</option>
-  <option value="MOVIMIENTOS CARDANICOS DE DIRECCION">MOVIMIENTOS CARDANICOS DE DIRECCION (MCD)</option>
-  <option value="PASTILLA DE FRENO">PASTILLA DE FRENO (P)</option>
-  <option value="POLEA BOMBA DE DIRECCION HIDRAULICA">POLEA BOMBA DE DIRECCION HIDRAULICA (BH)</option>
-  <option value="POLEA VISCOSA">POLEA VISCOSA (VIS)</option>
-  <option value="PORTAMAZAS">PORTAMAZAS (PTF)</option>
-  <option value="REPARACION DE BOMBAS HIDRAULICAS">REPARACION DE BOMBAS HIDRAULICAS (BHR)</option>
-  <option value="RESORTE NEUMATICO CAPOT PORTON">RESORTE NEUMATICO CAPOT PORTON (RN)</option>
-  <option value="RETEN">RETEN (RET)</option>
-  <option value="RULEMAN">RULEMAN (RU)</option>
-  <option value="SELLAJUNTAS Y PEGAMENTOS">SELLAJUNTAS Y PEGAMENTOS (SP)</option>
-  <option value="SEMIEJE">SEMIEJE (SEMI)</option>
-  <option value="SOPORTE DE CABINA">SOPORTE DE CABINA (SOP)</option>
-  <option value="SOPORTE PUENTE CARDAN">SOPORTE PUENTE CARDAN (SOP)</option>
-  <option value="SOPORTES DE MOTOR-CAJA-EJE TRAS-CABINA">SOPORTES DE MOTOR-CAJA-EJE TRAS-CABINA (SOP)</option>
-  <option value="SUPLEMENTOS Y SEPARADORES DE RUEDA">SUPLEMENTOS Y SEPARADORES DE RUEDA (LK-SR-GEM)</option>
-  <option value="TERMICA">TERMICA (TER)</option>
-  <option value="TRICETA">TRICETA (TR)</option>
-  <option value="VALVULA COMPENSADORA DE FRENO">VALVULA COMPENSADORA DE FRENO (VC)</option>
-  <option value="ZAPATA">ZAPATA (ZP)</option>
-  <option value="CORREA V O TRAPEZOIDALES">CORREA V O TRAPEZOIDALES (POV)</option>
-  <option value="DESPIECE FILTROS">DESPIECE FILTROS (FILO1T)</option>
-  <option value="LIMPIAMANOS">LIMPIAMANOS (LM)</option>
-  <option value="RADIADOR DE AGUA">RADIADOR DE AGUA (RAD)</option>
-  <option value="RADIADOR DE CALEFACCION">RADIADOR DE CALEFACCION (RADC)</option>
-  <option value="AFLOJATUERCAS Y DESENGRANSTE">AFLOJATUERCAS Y DESENGRANSTE (AFT)</option>
-  <option value="BATERIAS">BATERIAS (BAT)</option>
-  <option value="BOBINA DE ENCENDIDO">BOBINA DE ENCENDIDO (BOB)</option>
-  <option value="BOMBA DE AGUA">BOMBA DE AGUA (BA)</option>
-  <option value="BUJIAS DIESEL">BUJIAS DIESEL (BD)</option>
-  <option value="BUJIAS NAFTA">BUJIAS NAFTA (BN)</option>
-  <option value="CABLE DE BUJIAS ENCENDIDO">CABLE DE BUJIAS ENCENDIDO (CBJ)</option>
-  <option value="CORREA POLIV CANALES">CORREA POLIV CANALES (POV)</option>
-  <option value="ESCOBILLA">ESCOBILLA (ESC)</option>
-  <option value="FILTRO ACEITE">FILTRO ACEITE (FILO)</option>
-  <option value="FILTRO AIRE">FILTRO AIRE (FILA)</option>
-  <option value="FILTRO CABINA O HABITACULO">FILTRO CABINA O HABITACULO (FILH)</option>
-  <option value="FILTRO COMBUSTIBLE">FILTRO COMBUSTIBLE (FILC)</option>
-  <option value="FILTRO DE TRANSMISION">FILTRO DE TRANSMISION (FILT)</option>
-  <option value="GRASAS">GRASAS (GS)</option>
-  <option value="KIT DE FILTROS">KIT DE FILTROS (KF)</option>
-  <option value="KIT DE POLIV CORREAS Y TENSORES">KIT DE POLIV CORREAS Y TENSORES (KTPV)</option>
-  <option value="KIT DISTRIBUCION C/CADENA">KIT DISTRIBUCION C/CADENA (KTDC)</option>
-  <option value="KIT DISTRIBUCION C/CORREA">KIT DISTRIBUCION C/CORREA (KTD)</option>
-  <option value="LAMPARA 12V">LAMPARA 12V (LAM)</option>
-  <option value="LAMPARA 24V">LAMPARA 24V (LAM)</option>
-  <option value="LIQUIDOS DE FRENO">LIQUIDOS DE FRENO (LF)</option>
-  <option value="LUBRICANTES DE JARDINERIA">LUBRICANTES DE JARDINERIA (AC)</option>
-  <option value="LUBRICANTES DE MOTOR">LUBRICANTES DE MOTOR (AC)</option>
-  <option value="LUBRICANTES DE TRANSMISION Y DIRECCION">LUBRICANTES DE TRANSMISION Y DIRECCION (AC)</option>
-  <option value="REFRIGERANTES">REFRIGERANTES (REF)</option>
-  <option value="TENSOR POLIV Y DISTRIBUCION TODOS">TENSOR POLIV Y DISTRIBUCION TODOS (TEN)</option>
-</select>
-<button id="saveRubroBtn" style="background-color:green; color:white; border:none; padding:6px 10px; margin-left:10px; cursor:pointer;">
-  Guardar
-</button>
-</div>
-
-</div>
+      <!-- Sección para la resolución si es pendiente -->
       <div id="modalResolucionSection"></div>
+      <!-- Form para "resolver" el ticket -->
+      <div id="modalResolverFormSection"></div>
+
+      <!-- Sección de comentarios (solo una vez) -->
       <div class="comments-section">
         <h4>Comentarios</h4>
         <ul class="comments-list" id="commentsList"></ul>
@@ -249,10 +108,159 @@ C
           <button type="submit" class="btn">Agregar Comentario</button>
         </form>
       </div>
-      <div id="modalResolverFormSection"></div>
+
+      <!-- Rubro actual y cambio de rubro -->
+      <div style="margin-top:1rem;">
+        <small>Rubro actual:
+          <span id="rubroActual">N/A</span>
+        </small>
+        <button
+          id="btnChangeRubro"
+          style="background-color:red; color:white; border:none; padding:6px 10px; margin-left:10px; cursor:pointer;"
+        >
+        C
+        </button>
+
+        <!-- Contenedor oculto para el select de rubros -->
+        <div id="rubroSelectContainer" style="display:none; margin-top:10px;">
+          <select id="rubroSelect">
+            <option value="AMORTIGUADORES LIVIANOS">AMORTIGUADORES LIVIANOS (AMO)</option>
+            <option value="AMORTIGUADORES VASTAGO CORTO">AMORTIGUADORES VASTAGO CORTO (AVC)</option>
+            <option value="BUJES CAZOLETAS Y ELEMENTOS DE GOMAMETAL">BUJES CAZOLETAS Y ELEMENTOS DE GOMAMETAL (BU)</option>
+            <option value="CREMALLERA CAJA DE DIRECCION MECANICA">CREMALLERA CAJA DE DIRECCION MECANICA (CRE)</option>
+            <option value="DESPIECE SYD SUSPENSION Y DIRECCION">DESPIECE SYD SUSPENSION Y DIRECCION (DESYD)</option>
+            <option value="PARRILLA DE SUSPENSION">PARRILLA DE SUSPENSION (PS)</option>
+            <option value="RESORTES DE SUSPENSION">RESORTES DE SUSPENSION (RS)</option>
+            <option value="RESORTES DEPORTIVOS">RESORTES DEPORTIVOS (RD)</option>
+            <option value="SUSPENSION Y DIRECCION">SUSPENSION Y DIRECCION (SYD)</option>
+            <option value="AMORTIGUADORES PESADOS-CAMIONES">AMORTIGUADORES PESADOS-CAMIONES (AMO)</option>
+            <option value="CREMALLERA HIDRAULICA">CREMALLERA HIDRAULICA (CNH)</option>
+            <option value="A DETERMINAR">A DETERMINAR (NADA)</option>
+            <option value="ACCESORIOS">ACCESORIOS (ACC)</option>
+            <option value="ADITIVOS">ADITIVOS (ADT)</option>
+            <option value="AHE ACTUADORES HIDRAULICOS DE EMBRAGUES">AHE ACTUADORES HIDRAULICOS DE EMBRAGUES (AHE)</option>
+            <option value="AMORTIGUADORES OFFROAD">AMORTIGUADORES OFFROAD (AOR)</option>
+            <option value="BARRA ESTABILIZADORA">BARRA ESTABILIZADORA (BE)</option>
+            <option value="BARRAS DE TORSION">BARRAS DE TORSION (BART)</option>
+            <option value="BARRAS TENSORAS">BARRAS TENSORAS (BTEN)</option>
+            <option value="BARRAS Y EXTREMOS LARGOS DE DIRECCION">BARRAS Y EXTREMOS LARGOS DE DIRECCION (CDB)</option>
+            <option value="BASTIDOR">BASTIDOR (BAST)</option>
+            <option value="BOMBA DE CEBADO COMBUSTIBLE">BOMBA DE CEBADO COMBUSTIBLE (BOC)</option>
+            <option value="BOMBA DE DIRECCION HIDRAULICA">BOMBA DE DIRECCION HIDRAULICA (BH)</option>
+            <option value="BOMBA DEPRESORA O DE VACIO">BOMBA DEPRESORA O DE VACIO (BDV)</option>
+            <option value="BOMBA EMBRAGUE (PEDAL)">BOMBA EMBRAGUE (PEDAL) (BOE)</option>
+            <option value="BOMBA FRENO">BOMBA FRENO (BOF)</option>
+            <option value="BOMBIN EMBRAGUE (CAJA)">BOMBIN EMBRAGUE (CAJA) (BBE)</option>
+            <option value="CABLE ACELERADOR">CABLE ACELERADOR (CA)</option>
+            <option value="CABLE EMBRAGUE">CABLE EMBRAGUE (CE)</option>
+            <option value="CABLE FRENO">CABLE FRENO (CF)</option>
+            <option value="CABLE SELECTORA">CABLE SELECTORA (CS)</option>
+            <option value="CADENA PARA NIEVE">CADENA PARA NIEVE (NADA)</option>
+            <option value="CAJAS Y CAJONES">CAJAS Y CAJONES (INSUMOS)</option>
+            <option value="CILINDRO DE RUEDA">CILINDRO DE RUEDA (CR)</option>
+            <option value="CONDENSADORES">CONDENSADORES (COND)</option>
+            <option value="CORONAS DE ARRANQUE">CORONAS DE ARRANQUE (CA)</option>
+            <option value="CORREA DISTRIBUCION DENTADAS">CORREA DISTRIBUCION DENTADAS (CO)</option>
+            <option value="CRAPODINAS MECANICAS EMBRAGUE">CRAPODINAS MECANICAS EMBRAGUE (CME)</option>
+            <option value="CREMALLERA REPARADA HIDRAULICA">CREMALLERA REPARADA HIDRAULICA (FER)</option>
+            <option value="CREMALLERA REPARADA MECANICA">CREMALLERA REPARADA MECANICA (FER)</option>
+            <option value="CRUCETAS">CRUCETAS (CRC)</option>
+            <option value="CUBRECARTER">CUBRECARTER (CART)</option>
+            <option value="CUERPOS">CUERPOS (FER)</option>
+            <option value="DESPIECE EMBRAGUES">DESPIECE EMBRAGUES (DESEM)</option>
+            <option value="DESPIECE FRENO">DESPIECE FRENO (DFR)</option>
+            <option value="DESPIECE SELECTORA Y VARILLAJE DE CAMBIO">DESPIECE SELECTORA Y VARILLAJE DE CAMBIO (DSV)</option>
+            <option value="DESPIECE TERMICA">DESPIECE TERMICA (ABZ)</option>
+            <option value="DESPIECE TRANSMISION">DESPIECE TRANSMISION (ST)</option>
+            <option value="DISCOS Y CAMPANAS">DISCOS Y CAMPANAS (DF)</option>
+            <option value="EJE TRASEROS">EJE TRASEROS (ET)</option>
+            <option value="ELASTICO">ELASTICO (ELAST)</option>
+            <option value="EMBRAGUE REPARADO">EMBRAGUE REPARADO (EMR)</option>
+            <option value="EMBRAGUES">EMBRAGUES (EM)</option>
+            <option value="FLEXIBLE DE FRENO Y EMBRAGUE">FLEXIBLE DE FRENO Y EMBRAGUE (FFE)</option>
+            <option value="FUELLE Y TOPES SUSPENSION DELANTEROS Y TRASEROS">FUELLE Y TOPES SUSPENSION DELANTEROS Y TRASEROS (TYF)</option>
+            <option value="FUELLE DIRECCION CREMALLERA">FUELLE DIRECCION CREMALLERA (FD)</option>
+            <option value="FUELLE TRANSMISION LADO RUEDA Y CAJA">FUELLE TRANSMISION LADO RUEDA Y CAJA (FT)</option>
+            <option value="GENERAL">GENERAL (NADA)</option>
+            <option value="GUANTES">GUANTES (GT)</option>
+            <option value="GUIA DE DIRECTA">GUIA DE DIRECTA (GD)</option>
+            <option value="HERRAMIENTAS">HERRAMIENTAS (HR)</option>
+            <option value="HIDROLAVADORA-GENERADOR-COMPRESOR">HIDROLAVADORA-GENERADOR-COMPRESOR (HR)</option>
+            <option value="HOMOCINÉTICAS Y DESLIZANTES CAJA Y CARDAN">HOMOCINÉTICAS Y DESLIZANTES CAJA Y CARDAN (HL)</option>
+            <option value="HORQUILLAS">HORQUILLAS (HORQ)</option>
+            <option value="INSUMOS">INSUMOS (INSUMOS)</option>
+            <option value="KIT DE PERNOS Y PUNTA DE EJE">KIT DE PERNOS Y PUNTA DE EJE (KPEJ)</option>
+            <option value="LAVA AUTOS">LAVA AUTOS (ACC)</option>
+            <option value="MANCHON">MANCHON (MAN)</option>
+            <option value="MANGUERAS">MANGUERAS (MAR)</option>
+            <option value="MANGUETAS">MANGUETAS (MANG)</option>
+            <option value="MAZA Y PUNTA DE EJE CON Y SIN RULEMAN">MAZA Y PUNTA DE EJE CON Y SIN RULEMAN (MR)</option>
+            <option value="MOVIMIENTOS CARDANICOS DE DIRECCION">MOVIMIENTOS CARDANICOS DE DIRECCION (MCD)</option>
+            <option value="PASTILLA DE FRENO">PASTILLA DE FRENO (P)</option>
+            <option value="POLEA BOMBA DE DIRECCION HIDRAULICA">POLEA BOMBA DE DIRECCION HIDRAULICA (BH)</option>
+            <option value="POLEA VISCOSA">POLEA VISCOSA (VIS)</option>
+            <option value="PORTAMAZAS">PORTAMAZAS (PTF)</option>
+            <option value="REPARACION DE BOMBAS HIDRAULICAS">REPARACION DE BOMBAS HIDRAULICAS (BHR)</option>
+            <option value="RESORTE NEUMATICO CAPOT PORTON">RESORTE NEUMATICO CAPOT PORTON (RN)</option>
+            <option value="RETEN">RETEN (RET)</option>
+            <option value="RULEMAN">RULEMAN (RU)</option>
+            <option value="SELLAJUNTAS Y PEGAMENTOS">SELLAJUNTAS Y PEGAMENTOS (SP)</option>
+            <option value="SEMIEJE">SEMIEJE (SEMI)</option>
+            <option value="SOPORTE DE CABINA">SOPORTE DE CABINA (SOP)</option>
+            <option value="SOPORTE PUENTE CARDAN">SOPORTE PUENTE CARDAN (SOP)</option>
+            <option value="SOPORTES DE MOTOR-CAJA-EJE TRAS-CABINA">SOPORTES DE MOTOR-CAJA-EJE TRAS-CABINA (SOP)</option>
+            <option value="SUPLEMENTOS Y SEPARADORES DE RUEDA">SUPLEMENTOS Y SEPARADORES DE RUEDA (LK-SR-GEM)</option>
+            <option value="TERMICA">TERMICA (TER)</option>
+            <option value="TRICETA">TRICETA (TR)</option>
+            <option value="VALVULA COMPENSADORA DE FRENO">VALVULA COMPENSADORA DE FRENO (VC)</option>
+            <option value="ZAPATA">ZAPATA (ZP)</option>
+            <option value="CORREA V O TRAPEZOIDALES">CORREA V O TRAPEZOIDALES (POV)</option>
+            <option value="DESPIECE FILTROS">DESPIECE FILTROS (FILO1T)</option>
+            <option value="LIMPIAMANOS">LIMPIAMANOS (LM)</option>
+            <option value="RADIADOR DE AGUA">RADIADOR DE AGUA (RAD)</option>
+            <option value="RADIADOR DE CALEFACCION">RADIADOR DE CALEFACCION (RADC)</option>
+            <option value="AFLOJATUERCAS Y DESENGRANSTE">AFLOJATUERCAS Y DESENGRANSTE (AFT)</option>
+            <option value="BATERIAS">BATERIAS (BAT)</option>
+            <option value="BOBINA DE ENCENDIDO">BOBINA DE ENCENDIDO (BOB)</option>
+            <option value="BOMBA DE AGUA">BOMBA DE AGUA (BA)</option>
+            <option value="BUJIAS DIESEL">BUJIAS DIESEL (BD)</option>
+            <option value="BUJIAS NAFTA">BUJIAS NAFTA (BN)</option>
+            <option value="CABLE DE BUJIAS ENCENDIDO">CABLE DE BUJIAS ENCENDIDO (CBJ)</option>
+            <option value="CORREA POLIV CANALES">CORREA POLIV CANALES (POV)</option>
+            <option value="ESCOBILLA">ESCOBILLA (ESC)</option>
+            <option value="FILTRO ACEITE">FILTRO ACEITE (FILO)</option>
+            <option value="FILTRO AIRE">FILTRO AIRE (FILA)</option>
+            <option value="FILTRO CABINA O HABITACULO">FILTRO CABINA O HABITACULO (FILH)</option>
+            <option value="FILTRO COMBUSTIBLE">FILTRO COMBUSTIBLE (FILC)</option>
+            <option value="FILTRO DE TRANSMISION">FILTRO DE TRANSMISION (FILT)</option>
+            <option value="GRASAS">GRASAS (GS)</option>
+            <option value="KIT DE FILTROS">KIT DE FILTROS (KF)</option>
+            <option value="KIT DE POLIV CORREAS Y TENSORES">KIT DE POLIV CORREAS Y TENSORES (KTPV)</option>
+            <option value="KIT DISTRIBUCION C/CADENA">KIT DISTRIBUCION C/CADENA (KTDC)</option>
+            <option value="KIT DISTRIBUCION C/CORREA">KIT DISTRIBUCION C/CORREA (KTD)</option>
+            <option value="LAMPARA 12V">LAMPARA 12V (LAM)</option>
+            <option value="LAMPARA 24V">LAMPARA 24V (LAM)</option>
+            <option value="LIQUIDOS DE FRENO">LIQUIDOS DE FRENO (LF)</option>
+            <option value="LUBRICANTES DE JARDINERIA">LUBRICANTES DE JARDINERIA (AC)</option>
+            <option value="LUBRICANTES DE MOTOR">LUBRICANTES DE MOTOR (AC)</option>
+            <option value="LUBRICANTES DE TRANSMISION Y DIRECCION">LUBRICANTES DE TRANSMISION Y DIRECCION (AC)</option>
+            <option value="REFRIGERANTES">REFRIGERANTES (REF)</option>
+            <option value="TENSOR POLIV Y DISTRIBUCION TODOS">TENSOR POLIV Y DISTRIBUCION TODOS (TEN)</option>
+          </select>
+
+          <button
+            id="saveRubroBtn"
+            style="background-color:green; color:white; border:none; padding:6px 10px; margin-left:10px; cursor:pointer;"
+          >
+            Guardar
+          </button>
+        </div>
+      </div>
+      <!-- Fin cambio rubro -->
     </div>
   </div>
-  
+
+  <!-- Scripts -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="js/compras.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
