@@ -327,3 +327,53 @@ exports.cancelTicket = async (req, res) => {
     res.status(500).send({ error: 'Error interno del servidor' });
   }
 };
+
+exports.updateRubro = async (req, res) => {
+  try {
+    // Solo "compras" puede cambiar el rubro
+    if (req.user.role !== 'compras') {
+      return res.status(403).json({ error: 'No autorizado para cambiar el rubro' });
+    }
+
+    const { id } = req.params;      // ID del ticket
+    const { rubro } = req.body;     // Nuevo rubro a asignar
+
+    if (!rubro) {
+      return res.status(400).json({ error: 'Debe especificar un rubro' });
+    }
+
+    // 1. Buscar el ticket
+    const ticket = await Ticket.findById(id);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket no encontrado' });
+    }
+
+    // 2. Buscar usuarios de compras que tengan este rubro en su array
+    const compradores = await User.find({
+      role: 'compras',
+      rubros: { $in: [rubro] }
+    });
+
+    if (!compradores.length) {
+      return res
+        .status(400)
+        .json({ error: `No hay usuarios de compras que manejen el rubro: ${rubro}` });
+    }
+
+    // 3. Actualizar el rubro y reasignar a los nuevos compradores
+    ticket.rubro = rubro;
+    ticket.usuariosAsignados = compradores.map(c => c._id);
+    await ticket.save();
+
+    // 4. Responder con el ticket actualizado
+    res.json({
+      message: 'Rubro actualizado y ticket reasignado',
+      ticket
+    });
+  } catch (error) {
+    console.error('Error al cambiar el rubro del ticket:', error);
+    res.status(500).json({ error: 'Error interno al cambiar el rubro' });
+  }
+};
+
+

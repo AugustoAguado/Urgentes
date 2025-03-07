@@ -653,6 +653,82 @@ html, body {
   background: #460e00;
 }
 
+/* Contenedor general donde muestras el rubro actual y el botón de cambio */
+#modalRubroSection {
+  margin-top: 1rem;
+  color: #ffd700; /* Texto dorado, según tu tema */
+}
+
+/* Texto donde indicas el rubro actual */
+#rubroActual {
+  font-weight: bold;
+  color: #fff; /* Contrasta con fondo oscuro */
+}
+
+/* Botón rojo para cambiar rubro */
+#btnChangeRubro {
+  background-color: #1f1f1f !important; /* Rojo */
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-left: 10px; /* Espacio a la izquierda */
+}
+
+#btnChangeRubro:hover {
+  background-color: #d32f2f; /* Rojo más oscuro al pasar el mouse */
+}
+
+/* Contenedor oculto que se muestra tras la confirmación */
+#rubroSelectContainer {
+  display: none;           /* Se muestra dinámicamente con JS */
+  margin-top: 10px;
+}
+
+/* Etiqueta del select (opcional, si la usas) */
+#rubroSelectContainer label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #ffd700; /* Para resaltar */
+}
+
+/* El <select> donde eliges el rubro */
+#rubroSelect {
+  width: 100%;
+  max-width: 320px; /* Ajusta a tu gusto */
+  padding: 6px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background-color: #333;
+  color: #fff;
+  margin-right: 10px;
+}
+
+/* Botón verde para guardar el rubro */
+#saveRubroBtn {
+  background-color: #4caf50; /* Verde */
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+#saveRubroBtn:hover {
+  background-color: #388e3c; /* Verde más oscuro */
+}
+
+
+
+
+
+
 
   /* Responsive Design */
   @media (max-width: 768px) {

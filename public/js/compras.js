@@ -212,6 +212,8 @@ function renderTickets(tickets) {
       </td>
     `;
 
+
+
     // Prevenir que el select abra el ticket
     const selectElement = row.querySelector('.llego-select');
     selectElement.addEventListener('click', (e) => {
@@ -324,6 +326,63 @@ function updateTicketModal(ticket) {
 
   openTicketId = ticket._id;
 
+
+  document.getElementById('rubroActual').textContent = ticket.rubro || 'N/A';
+
+  // Botón "Cambiar Rubro"
+  const btnChangeRubro = document.getElementById('btnChangeRubro');
+  const rubroSelectContainer = document.getElementById('rubroSelectContainer');
+  btnChangeRubro.onclick = () => {
+    const sure = confirm('¿Seguro que quieres cambiar el rubro?');
+    if (!sure) return;
+    rubroSelectContainer.style.display = 'block'; // Muestra el select
+  };
+
+  // Al click en "Guardar"
+  const saveRubroBtn = document.getElementById('saveRubroBtn');
+  saveRubroBtn.onclick = async () => {
+    const newRubro = document.getElementById('rubroSelect').value;
+    if (!newRubro) {
+      alert('Selecciona un rubro');
+      return;
+    }
+    try {
+      const res = await fetch(`/tickets/${ticket._id}/update-rubro`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ rubro: newRubro })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Error al actualizar rubro');
+      }
+      alert('Rubro actualizado con éxito');
+      // Actualiza la UI
+      fetchAllTickets();
+      rubroSelectContainer.style.display = 'none';
+      document.getElementById('rubroActual').textContent = newRubro;
+    } catch (error) {
+      console.error('Error al cambiar rubro:', error);
+      alert(error.message);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   // Actualizamos la información del modal
   document.getElementById('modalShortId').textContent = `ID: ${ticket.shortId}`;
   document.getElementById('modalFecha').textContent = `H: ${new Date(ticket.fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`;
@@ -373,41 +432,42 @@ if (tipoTicketElement) {
   modalResolverFormSection.innerHTML = '';
   if (ticket.estado === 'pendiente') {
     modalResolverFormSection.innerHTML = `
-      <form class="resolver-form" data-ticket-id="${ticket._id}">
-        <div class="form-group">
-          <label>Resolución</label>
-          <input type="text" name="resolucion" required>
-        </div>
-        <div class="form-group">
-          <label>Código</label>
-          <input type="text" name="codigo">
-        </div>
-        <div class="form-group">
-          <label>Cantidad Resuelta</label>
-          <input type="number" name="cantidad_resuelta">
-        </div>
-        <div class="form-group">
-          <label>Proveedor</label>
-          <input type="text" name="proveedor">
-        </div>
-        <div class="form-group">
-          <label>Ingreso</label>
-          <input type="text" name="ingreso">
-        </div>
-        <div class="form-group">
-          <label>Comentario de Resolución</label>
-          <input type="text" name="comentario_resolucion">
-        </div>
-        <div class="form-group">
-          <label>Estado</label>
-          <select name="estado">
-            <option value="resuelto">Resuelto</option>
-            <option value="negativo">Negativo</option>
-          </select>
-        </div>
-        <button type="submit" class="btn">Guardar Resolución</button>
-      </form>
-    `;
+    <form class="resolver-form" data-ticket-id="${ticket._id}">
+      <div class="form-group">
+        <label>Resolución</label>
+        <input type="text" name="resolucion" required>
+      </div>
+      <div class="form-group">
+        <label>Código</label>
+        <input type="text" name="codigo" required>
+      </div>
+      <div class="form-group">
+        <label>Cantidad Resuelta</label>
+        <input type="number" name="cantidad_resuelta" required>
+      </div>
+      <div class="form-group">
+        <label>Proveedor</label>
+        <input type="text" name="proveedor" required>
+      </div>
+      <div class="form-group">
+        <label>Ingreso</label>
+        <input type="text" name="ingreso" required>
+      </div>
+      <div class="form-group">
+        <label>Comentario de Resolución</label>
+        <!-- Este campo NO es requerido -->
+        <input type="text" name="comentario_resolucion">
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select name="estado" required>
+          <option value="resuelto">Resuelto</option>
+          <option value="negativo">Negativo</option>
+        </select>
+      </div>
+      <button type="submit" class="btn">Guardar Resolución</button>
+    </form>
+  `;
 
     const resolverForm = modalResolverFormSection.querySelector('.resolver-form');
     resolverForm.addEventListener('submit', handleResolverSubmit);
