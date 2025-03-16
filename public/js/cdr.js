@@ -21,6 +21,7 @@ socket.on('nuevoComentario', ({ ticketId, comentario }) => {
 });
 socket.on('comentariosLeidos', ({ ticketId, role }) => {
   showOrHideDotFilter(allTickets);
+  updateDocumentTitle(); 
 });
 
 if (!token || role !== 'cdr') {
@@ -154,6 +155,7 @@ async function fetchMyTickets() {
 
     allTickets = await res.json();
     showOrHideDotFilter(allTickets);
+    updateDocumentTitle(); 
     applyFilters();
   } catch (error) {
     console.error('Error al obtener tickets:', error);
@@ -412,6 +414,7 @@ function renderTickets(tickets) {
             onlyDotsFiltro.checked = false;
             applyFilters();
           }
+          updateDocumentTitle();  
         } catch (error) {
           console.error('Error al marcar ticket como leído:', error);
         }
@@ -519,6 +522,43 @@ codPosInput.addEventListener('blur', async () => {
   }
 });
 
+// Guarda el título original para poder restaurarlo cuando no haya notificaciones
+const originalTitle = document.title;
+
+// Crea un objeto Audio o referencia a la etiqueta <audio> en el HTML
+const notificationSound = new Audio('../assets/system-notification-199277.mp3');
+// Si es necesario, puedes forzar la precarga:
+notificationSound.preload = 'auto';
+
+// Variable para recordar cuántos tickets no leídos teníamos antes
+let previousUnreadCount = 0;
+
+// Función para actualizar el título del documento con el número de tickets sin leer
+function updateDocumentTitle() {
+  // Filtramos los tickets que tengan nuevos comentarios para 'vendedor'
+  const unreadCount = allTickets.filter(ticket => ticket.nuevosComentarios?.vendedor).length;
+  
+  console.log('Tickets sin leer:', unreadCount, 'Anterior:', previousUnreadCount);
+  
+  // Actualizamos el título
+  if (unreadCount > 0) {
+    document.title = `(${unreadCount}) ${originalTitle}`;
+  } else {
+    document.title = originalTitle;
+  }
+
+  // Si el número de no leídos ha aumentado, reproducimos el sonido
+  if (unreadCount > previousUnreadCount) {
+    notificationSound.play().then(() => {
+      console.log('Sonido reproducido correctamente.');
+    }).catch(err => {
+      console.error('No se pudo reproducir el sonido:', err);
+    });
+  }
+
+  // Guardamos el nuevo valor de 'unreadCount' para comparaciones futuras
+  previousUnreadCount = unreadCount;
+}
 
 
 
