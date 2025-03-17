@@ -3,11 +3,6 @@ let role = localStorage.getItem('role') || sessionStorage.getItem('role');
 let username = localStorage.getItem('username') || sessionStorage.getItem('username');
 const usuarioActualId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
 
-let ticketsPerPage = 15;    
-let currentOffset = 0;      
-let totalTickets = null;    
-let allTickets = [];        // Lista global de tickets
-
 // Nueva variable global para recordar el ticket abierto
 let openTicketId = null;
 
@@ -98,6 +93,7 @@ const pagoFiltro = document.getElementById('pagoFiltro');
 const onlyDotsFiltro = document.getElementById('onlyDotsFiltro');
 const dotFilterSection = document.getElementById('dotFilterSection');
 
+let allTickets = [];
 
 function showOrHideDotFilter(tickets) {
   const hasAnyDot = tickets.some(ticket => ticket.nuevosComentarios?.vendedor);
@@ -147,41 +143,31 @@ onlyDotsFiltro.addEventListener('change', applyFilters);
 
 const ticketList = document.getElementById('ticketList');
 
-async function fetchMyTickets(reset = false) {
-  if (reset) {
-    currentOffset = 0;
-    allTickets = [];
-  }
-  
+async function fetchMyTickets() {
   try {
-    const res = await fetch(`/tickets/mis?limit=${ticketsPerPage}&offset=${currentOffset}`, {
+    const res = await fetch('/tickets/mis', {
       headers: { Authorization: `Bearer ${token}` },
     });
+
     if (!res.ok) {
       const errorText = await res.text();
       console.error('Error al obtener tickets:', errorText);
       alert('Error al cargar los tickets: ' + errorText);
       return;
     }
-    const data = await res.json();
-    const newTickets = data.tickets || data;
-    totalTickets = data.total || null;
-    
-    allTickets = reset ? newTickets : allTickets.concat(newTickets);
+
+    allTickets = await res.json();
     showOrHideDotFilter(allTickets);
-    updateDocumentTitle();
+    updateDocumentTitle(); 
     applyFilters();
-    
-    currentOffset += ticketsPerPage;
-    document.getElementById('loadMoreBtn').style.display = (newTickets.length < ticketsPerPage) ? 'none' : 'block';
   } catch (error) {
     console.error('Error al obtener tickets:', error);
     alert('Error al cargar los tickets');
   }
 }
 
-
 let ticketsToShow = 15; // Número inicial de tickets a mostrar
+let currentOffset = 0; // Desplazamiento para cargar más tickets
 
 function renderTickets(tickets) {
   ticketList.innerHTML = `
