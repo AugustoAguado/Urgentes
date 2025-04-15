@@ -49,21 +49,25 @@ exports.createTicket = async (req, res) => {
 
 exports.getMyTickets = async (req, res) => {
   try {
-    // Incluir 'admincdr' si deseas que también pueda llamar a "getMyTickets"
     if (!['vendedor', 'compras', 'cdr', 'admincdr'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Acceso no autorizado' });
     }
-    
+
+    // Nuevo filtro de fecha si viene por query
+    const fechaDesde = req.query.fechaDesde ? new Date  (req.query.fechaDesde) : null;
+    let fechaFiltro = {};
+    if (fechaDesde) {
+      fechaFiltro.fecha = { $gte: fechaDesde };
+    }
+
     let tickets;
     if (req.user.role === 'vendedor' || req.user.role === 'cdr') {
-      tickets = await Ticket.find({ usuario: req.user.id }).sort({ fecha: -1 });
-    } 
-    else if (req.user.role === 'compras' || req.user.role === 'admincdr') {
-      // Reutilizas la misma lógica de 'compras':
+      tickets = await Ticket.find({ usuario: req.user.id, ...fechaFiltro }).sort({ fecha: -1 });
+    } else if (req.user.role === 'compras' || req.user.role === 'admincdr') {
       if (req.user.username === 'comprasadmin') {
-        tickets = await Ticket.find({}).sort({ fecha: -1 });
+        tickets = await Ticket.find({ ...fechaFiltro }).sort({ fecha: -1 });
       } else {
-        tickets = await Ticket.find({ usuariosAsignados: req.user.id }).sort({ fecha: -1 });
+        tickets = await Ticket.find({ usuariosAsignados: req.user.id, ...fechaFiltro }).sort({ fecha: -1 });
       }
     }
 
@@ -77,6 +81,7 @@ exports.getMyTickets = async (req, res) => {
 
 
 
+
 exports.getAllTickets = async (req, res) => {
   // Se permite acceso a 'compras', 'admin' Y 'admincdr'
   if (!['compras', 'admin', 'admincdr'].includes(req.user.role)) {
@@ -86,22 +91,26 @@ exports.getAllTickets = async (req, res) => {
   try {
     let filter = {};
 
+    // Filtro automático: solo últimos 30 días
+    const fechaLimite = new Date();
+    fechaLimite.setMonth(fechaLimite.getMonth() - 1);
+    filter.fecha = { $gte: fechaLimite };
+
     // Si es 'compras' (no admin) => solo los asignados
     if (req.user.role === 'compras' && req.user.username !== 'comprasadmin') {
-      filter = { usuariosAsignados: req.user.id };
+      filter.usuariosAsignados = req.user.id;
     }
     // Si es 'admincdr' => filtrar los tickets cuyo creador sea de rol 'cdr'
     else if (req.user.role === 'admincdr') {
-      // Buscar todos los usuarios con rol 'cdr'
       const cdrUserIds = await User.find({ role: 'cdr' }).distinct('_id');
-      filter = { usuario: { $in: cdrUserIds } };
+      filter.usuario = { $in: cdrUserIds };
     }
-    // Si es 'admin' o 'comprasadmin' => no hay filtro (ven todo)
+    // Si es 'admin' o 'comprasadmin' => ven todos, pero igual se aplica filtro por fecha
 
     const tickets = await Ticket.find(filter)
       .sort({ fecha: -1 })
       .populate('usuario', 'username')
-      .populate('usuariosAsignados', 'username'); // Mostrar detalles de los usuarios asignados
+      .populate('usuariosAsignados', 'username');
 
     res.json(tickets);
   } catch (error) {
@@ -109,6 +118,7 @@ exports.getAllTickets = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener tickets' });
   }
 };
+
 
 
 

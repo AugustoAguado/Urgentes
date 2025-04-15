@@ -551,18 +551,22 @@ async function handleResolverSubmit(e) {
 
 async function fetchAllTickets() {
   try {
-    const res = await fetch('/tickets', {
+    const unMesAtras = new Date();
+    unMesAtras.setMonth(unMesAtras.getMonth() - 1);
+    const fechaDesde = unMesAtras.toISOString();
+
+    const res = await fetch(`/tickets?soloUltimoMes=true`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    
+
     allTickets = await res.json();
     showOrHideDotFilter(allTickets);
     applyFilters();
   } catch (error) {
     console.error('Error al obtener tickets:', error);
   }
-
 }
+
 
 async function fetchComments(ticketId, commentsList) {
   try {

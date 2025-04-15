@@ -145,7 +145,12 @@ const ticketList = document.getElementById('ticketList');
 
 async function fetchMyTickets() {
   try {
-    const res = await fetch('/tickets/mis', {
+    // Obtener la fecha de hace 1 mes
+    const unMesAtras = new Date();
+    unMesAtras.setMonth(unMesAtras.getMonth() - 1);
+    const fechaISO = unMesAtras.toISOString();
+
+    const res = await fetch(`/tickets/mis?fechaDesde=${encodeURIComponent(fechaISO)}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -165,6 +170,7 @@ async function fetchMyTickets() {
     alert('Error al cargar los tickets');
   }
 }
+
 
 let ticketsToShow = 15; // Número inicial de tickets a mostrar
 let currentOffset = 0; // Desplazamiento para cargar más tickets
