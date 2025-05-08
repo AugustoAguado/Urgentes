@@ -44,9 +44,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+let isCreatingTicket = false;
+
+
 const ticketForm = document.getElementById('ticketForm');
 ticketForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  // Evita múltiples envíos simultáneos
+  if (isCreatingTicket) {
+    showInAppAlert('Ya se está procesando un ticket. Esperá un momento.');
+    return;
+  }
+
+  isCreatingTicket = true;
+
   const formData = new FormData(ticketForm);
   const payload = {
     tipo: formData.get('tipo'),
@@ -71,8 +83,7 @@ ticketForm.addEventListener('submit', async (e) => {
     const data = await res.json();
     if (res.ok) {
       showInAppAlert('Ticket creado con éxito.');
-      document.getElementById('crearTicketSection').style.display = 'none';
-      ticketForm.reset(); 
+      ticketForm.reset();
       $('#rubro').val('').trigger('change');
       $('#tipoTicket').val('').trigger('change');
       document.getElementById('crearTicketSection').style.display = 'none';
@@ -83,6 +94,8 @@ ticketForm.addEventListener('submit', async (e) => {
   } catch (error) {
     console.error('Error al crear ticket:', error);
     showInAppAlert('Error al crear el ticket');
+  } finally {
+    isCreatingTicket = false; // Recién acá se vuelve a permitir enviar
   }
 });
 
