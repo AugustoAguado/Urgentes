@@ -512,7 +512,12 @@ if (tipoTicketElement) {
     resolverForm.addEventListener('submit', handleResolverSubmit);
   }
   
+  /* carga inicial + bind del formulario */
+const commentsList = document.getElementById('commentsList');
+if (commentsList) fetchComments(ticket._id, commentsList);
+bindCommentForm(ticket._id);
 }
+
 
 function closeTicketModal() {
   openTicketId = null;
@@ -527,9 +532,8 @@ function closeTicketModal() {
   const commentsList = document.getElementById('commentsList');
   commentsList.innerHTML = '';
 
-  const commentForm = document.getElementById('commentForm');
-  const newCommentForm = commentForm.cloneNode(true);
-  commentForm.parentNode.replaceChild(newCommentForm, commentForm);
+document.getElementById('commentForm')?.reset();
+
 
   if (pendingRefresh) {
     pendingRefresh = false;
@@ -556,51 +560,83 @@ async function fetchAllTickets() {
     console.error('Error al obtener tickets:', error);
   }
 }
-// Removed unused function 'fetchComments'
-// async function fetchComments(ticketId, commentsList) {
+
 
 async function fetchComments(ticketId, commentsList) {
   try {
     const res = await fetch(`/tickets/${ticketId}/comments`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-
     if (res.ok) {
       const comments = await res.json();
-
       commentsList.innerHTML = '';
       renderedCommentIds.clear();
-
-      comments.forEach(comment => {
-        if (!renderedCommentIds.has(comment._id)) {
-          addCommentToList(commentsList, comment);
-        }
-      });
+      comments.forEach(c => addCommentToList(commentsList, c));
     } else {
       console.error('Error al cargar comentarios');
     }
-  } catch (error) {
-    console.error('Error al obtener comentarios:', error);
+  } catch (err) {
+    console.error('Error al obtener comentarios:', err);
   }
 }
 
+
+
+
 let renderedCommentIds = new Set();
 
+
+/* ------------------------------------------------------------------ */
+/*  Vincula el <form id="commentForm"> con submit por fetch, sin GET   */
+function bindCommentForm(ticketId) {
+  const form = document.getElementById('commentForm');
+  const list = document.getElementById('commentsList');
+  if (!form) return;
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();                       // ← evita ?comment=... en la URL
+    const texto = form.elements.comment.value.trim();
+    if (!texto) return;
+
+    try {
+      const res = await fetch(`/tickets/${ticketId}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ texto })
+      });
+      if (res.ok) {
+        const nuevo = await res.json();
+        addCommentToList(list, nuevo);
+        form.reset();
+      } else {
+        alert('Error al agregar comentario');
+      }
+    } catch (err) {
+      console.error('Error al enviar comentario:', err);
+      alert('Error de conexión');
+    }
+  };
+}
+/* ------------------------------------------------------------------ */
+
+
+
 function addCommentToList(commentsList, comment) {
-  if (renderedCommentIds.has(comment._id)) {
-    console.log('Comentario ya renderizado, ignorando:', comment._id);
-    return;
-  }
+  if (renderedCommentIds.has(comment._id)) return;   // ya lo mostraste
 
   renderedCommentIds.add(comment._id);
 
   const commentItem = document.createElement('li');
   commentItem.dataset.commentId = comment._id;
-  const dateFormatted = new Date(comment.fecha).toLocaleString('es-ES');
-  const username = comment.usuario?.username || 'Usuario desconocido';
 
-  const currentUserId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
-  if (comment.usuario && comment.usuario._id === currentUserId) {
+  const dateFormatted = new Date(comment.fecha).toLocaleString('es-ES');
+  const username      = comment.usuario?.username || 'Usuario desconocido';
+
+  if (comment.usuario?._id === (localStorage.getItem('userId') ||
+                                sessionStorage.getItem('userId'))) {
     commentItem.classList.add('self');
   }
 
@@ -609,9 +645,13 @@ function addCommentToList(commentsList, comment) {
     <span class="date">${dateFormatted}</span>
     <div class="comment-text">${comment.texto}</div>
   `;
-// Removed unused function 'handleCommentSubmit'
-// async function handleCommentSubmit(e) {
+
+  /*  ─────  📌 LO QUE FALTABA  ─────  */
+  commentsList.appendChild(commentItem);           // ← ¡inserta el <li>!
+  commentsList.scrollTop = commentsList.scrollHeight; // auto-scroll
 }
+
+
 
 async function handleResolverSubmit(e) {
   e.preventDefault();
