@@ -248,6 +248,8 @@ confirmExport.addEventListener('click', async () => {
             return ticket.estado;
           case 'Rubro':
             return ticket.rubro || 'N/A';
+          case 'Tipo':
+            return ticket.tipo || 'N/A';
           default:
             return '';
         }
