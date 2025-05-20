@@ -683,13 +683,15 @@ async function handleResolverSubmit(e) {
   let plazoEntrega = null;
   const estadoTicket = fd.get('estado');
 
+  // ¿El formulario tiene el input fecha_ingreso?
+  const necesitaFecha = fd.has('fecha_ingreso');
 
-
-  if (estadoTicket === 'negativo') {
+  if (estadoTicket === 'negativo' || !necesitaFecha) {
+    // Para negativos o formularios sin fecha, no enviamos nada
   } else if (fd.get('plazo715')) {
     plazoEntrega = '7 a 15 días';
   } else {
-    const fechaStr = fd.get('fecha_ingreso');   // ej.: 05-06
+    const fechaStr = (fd.get('fecha_ingreso') || '').trim(); // puede venir string vacío
     if (!/^\d{2}-\d{2}$/.test(fechaStr)) {
       alert('Ingresá la fecha como dd-mm (ej. 05-06) o marcá 7-15 días');
       return;
@@ -706,14 +708,15 @@ async function handleResolverSubmit(e) {
     cantidad_resuelta: fd.get('cantidad_resuelta') ? Number(fd.get('cantidad_resuelta')) : undefined,
     proveedor:         fd.get('proveedor'),
     comentario_resolucion: fd.get('comentario_resolucion'),
-    estado:            fd.get('estado'),
-    fechaIngreso,
-    plazoEntrega
+    estado:            estadoTicket,
   };
+
+  if (fechaIngreso)  payload.fechaIngreso  = fechaIngreso;
+  if (plazoEntrega)  payload.plazoEntrega  = plazoEntrega;
 
   try {
     const res = await fetch(`/tickets/${e.target.dataset.ticketId}`, {
-      method: 'PATCH',
+      method:  'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -723,7 +726,7 @@ async function handleResolverSubmit(e) {
 
     if (res.ok) {
       alert('Ticket actualizado con éxito');
-      closeTicketModal();          // cierra y refresca
+      closeTicketModal();
     } else {
       const err = await res.json();
       alert(err.error || 'No se pudo actualizar el ticket');
@@ -733,6 +736,7 @@ async function handleResolverSubmit(e) {
     alert('Error de conexión al actualizar el ticket.');
   }
 }
+
 
 const tituloCompras = document.getElementById('tituloCompras');
 if (tituloCompras && username) {
