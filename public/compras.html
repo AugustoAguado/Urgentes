@@ -8,13 +8,21 @@
   <link rel="stylesheet" href="./css/compras.css" />
 </head>
 <body>
-  <header>
-    <img class="logo-page" src="./assets/IsologoBlanco.webp" alt="Logo" />
-    <h1 id="tituloCompras">Compras - Tickets</h1>
-    <a id="logoutBtn">
-      <img class="logoLogOut" src="./assets/cerrar-sesion.svg" alt="Cerrar sesión" />
-    </a>
+   <header class="app-header">
+    <div class="header-left">
+      <img class="logo-page" src="./assets/IsologoBlanco.webp" alt="Logo"/>
+      <a id="btnUrgentes" class="icon-btn" href="urgentes.html" title="Urgentes">
+        <img src="./assets/list-ul-svgrepo-com.svg" alt="Urgentes"/>
+      </a>
+    </div>
+    <h1 id="tituloCompras">COMPRAS – Tickets</h1>
+    <div class="header-right">
+      <a id="logoutBtn" title="Salir">
+        <img class="logoLogOut" src="./assets/cerrar-sesion.svg" alt="Salir"/>
+      </a>
+    </div>
   </header>
+  
 
   <section class="urgentes-section">
     <h2>Todos los Tickets</h2>

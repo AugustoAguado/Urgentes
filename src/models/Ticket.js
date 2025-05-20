@@ -51,6 +51,8 @@ const TicketSchema = new mongoose.Schema({
     vendedor: { type: Boolean, default: false },
     compras: { type: Boolean, default: false },
   },
+  fechaIngreso: Date,
+  plazoEntrega: String, 
 });
 
 module.exports = mongoose.model('Ticket', TicketSchema);

@@ -120,59 +120,66 @@ exports.getAllTickets = async (req, res) => {
 };
 
 
-
-
-
 exports.resolveTicket = async (req, res) => {
-  console.log('resolveTicket -> Datos recibidos:', req.body);
-  console.log('resolveTicket -> ID del ticket:', req.params.id);
-  console.log('resolveTicket -> Rol del usuario:', req.user.role);
-
-  if (!['compras', 'vendedor', 'cdr' ].includes(req.user.role)) {
+  if (!['compras', 'vendedor', 'cdr'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Acceso no autorizado' });
   }
 
   const { id } = req.params;
-  const { resolucion, codigo, cantidad_resuelta, proveedor, ingreso, comentario_resolucion, avisado, pago, estado } = req.body;
+  const {
+    resolucion,
+    codigo,
+    cantidad_resuelta,
+    proveedor,
+    comentario_resolucion,
+    estado,  
+    plazoEntrega,
+    fechaIngreso,
+  } = req.body;
 
   try {
     const ticket = await Ticket.findById(id);
-    if (!ticket) {
-      console.log('resolveTicket -> Ticket no encontrado');
-      return res.status(404).json({ error: 'Ticket no encontrado' });
-    }
+    if (!ticket) return res.status(404).json({ error: 'Ticket no encontrado' });
 
-    // Actualizaciones según el rol
-    if (req.user.role === 'vendedor' || req.user.role === 'cdr') {
-      if (avisado !== undefined) ticket.avisado = avisado;
-      if (pago !== undefined) ticket.pago = pago;
-    }
-
+    /* ─┤ Actualizaciones por rol ├─ */
     if (req.user.role === 'compras') {
-      if (resolucion !== undefined) ticket.resolucion = resolucion;
-      if (codigo !== undefined) ticket.codigo = codigo;
-      if (cantidad_resuelta !== undefined) ticket.cantidad_resuelta = cantidad_resuelta;
-      if (proveedor !== undefined) ticket.proveedor = proveedor;
-      if (ingreso !== undefined) ticket.ingreso = ingreso;
+      if (resolucion         !== undefined) ticket.resolucion         = resolucion;
+      if (codigo             !== undefined) ticket.codigo             = codigo;
+      if (cantidad_resuelta  !== undefined) ticket.cantidad_resuelta  = cantidad_resuelta;
+      if (proveedor          !== undefined) ticket.proveedor          = proveedor;
       if (comentario_resolucion !== undefined) ticket.comentario_resolucion = comentario_resolucion;
       if (estado && ['pendiente', 'resuelto', 'negativo'].includes(estado)) {
         ticket.estado = estado;
       }
+      if (fechaIngreso !== undefined) {
+        ticket.fechaIngreso = fechaIngreso ? new Date(fechaIngreso) : undefined;
+      }
+      // NUEVO
+      if (plazoEntrega === '7 a 15 días') {
+        ticket.plazoEntrega = '7 a 15 días';
+      } else {
+        ticket.plazoEntrega = undefined;     // por si se desmarca
+      }
+    }
+
+    if (['vendedor', 'cdr'].includes(req.user.role)) {
+      // sólo pueden marcar avisado / pago (si los tuvieses)
+      if (req.body.avisado !== undefined) ticket.avisado = req.body.avisado;
+      if (req.body.pago    !== undefined) ticket.pago    = req.body.pago;
     }
 
     await ticket.save();
 
-    // Obtén la instancia de io:
-    const io = getIO();
-    io.emit('ticketActualizado', ticket);
-
-    console.log('resolveTicket -> Ticket actualizado:', ticket);
+    getIO().emit('ticketActualizado', ticket);
     res.json(ticket);
-  } catch (error) {
-    console.error('resolveTicket -> Error al actualizar el ticket:', error.message);
+  } catch (err) {
+    console.error('resolveTicket -> Error:', err);
     res.status(500).json({ error: 'Error al actualizar el ticket' });
   }
 };
+
+
+
 
 exports.addComment = async (req, res) => {
   try {
@@ -386,4 +393,51 @@ exports.updateRubro = async (req, res) => {
   }
 };
 
+// Devuelve los tickets urgentes (diarios para admincdr, mixtos para otros)
+exports.getUrgentTickets = async (req, res) => {
+  const rolesPermitidos = ['compras', 'vendedor', 'cdr', 'admincdr', 'admin'];
+  if (!rolesPermitidos.includes(req.user.role)) {
+    return res.status(403).json({ error: 'Acceso no autorizado' });
+  }
+
+  try {
+    // calculo de hoy y mañana
+    const hoy    = new Date(); hoy.setHours(0, 0, 0, 0);
+    const mañana = new Date(hoy); mañana.setDate(hoy.getDate() + 1);
+
+    // base del filtro: solo urgentes o pendientes
+    const filter = {
+      tipo: { $in: ['urgente', 'pendiente'] }
+    };
+
+    if (req.user.role === 'admincdr') {
+      // Sólo los creados hoy por usuarios con rol 'cdr'
+      const cdrIds = await User.find({ role: 'cdr' }).distinct('_id');
+      filter.usuario       = { $in: cdrIds };
+      filter.fechaIngreso  = { $gte: hoy, $lt: mañana };
+    } else {
+      // Comportamiento original para los demás roles
+      filter.$or = [
+        { fechaIngreso: { $gte: hoy, $lt: mañana } },               // ingresan hoy
+        { plazoEntrega: '7 a 15 días', llego: { $ne: 'si' } }       // o 7-15 días y no llegó
+      ];
+      if (req.user.role === 'compras' && req.user.username !== 'comprasadmin') {
+        filter.usuariosAsignados = req.user.id;
+      }
+      if (req.user.role === 'vendedor' || req.user.role === 'cdr') {
+        filter.usuario = req.user.id;
+      }
+      // admin y comprasadmin ven todo lo anterior
+    }
+
+    const tickets = await Ticket.find(filter)
+      .sort({ fechaIngreso: -1 })
+      .populate('usuario', 'username');
+
+    res.json(tickets);
+  } catch (err) {
+    console.error('Error al obtener urgentes:', err);
+    res.status(500).json({ error: 'Error interno al obtener urgentes' });
+  }
+};
 

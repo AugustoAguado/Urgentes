@@ -9,13 +9,21 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"/>
 </head>
 <body>
-  <header>
-    <img class="logo-page" src="./assets/IsologoBlanco.webp" alt="Logo" />
-    <h1 id="tituloVendedor">Vendedor - Tickets</h1>
-    <a id="logoutBtn">
-      <img class="logoLogOut" src="./assets/cerrar-sesion.svg" alt="Cerrar sesión" />
-    </a>
+  <header class="app-header">
+    <div class="header-left">
+      <img class="logo-page" src="./assets/IsologoBlanco.webp" alt="Logo"/>
+      <a id="btnUrgentes" class="icon-btn" href="urgentes.html" title="Urgentes">
+        <img src="./assets/list-ul-svgrepo-com.svg" alt="Urgentes"/>
+      </a>
+    </div>
+    <h1 id="tituloVendedor">CDR – Tickets</h1>
+    <div class="header-right">
+      <a id="logoutBtn" title="Salir">
+        <img class="logoLogOut" src="./assets/cerrar-sesion.svg" alt="Salir"/>
+      </a>
+    </div>
   </header>
+  
 <div id="inAppAlert" class="alert-overlay" style="display: none;">
   <div class="alert-box">
     <span id="alertMessage"></span>

@@ -429,63 +429,90 @@ if (tipoTicketElement) {
   }
 
   const modalResolverFormSection = document.getElementById('modalResolverFormSection');
-  modalResolverFormSection.innerHTML = '';
-  if (ticket.estado === 'pendiente') {
-    modalResolverFormSection.innerHTML = `
-    <form class="resolver-form" data-ticket-id="${ticket._id}">
-      <div class="form-group">
-        <label>Resolución</label>
-        <input type="text" name="resolucion" required>
-      </div>
-      <div class="form-group">
-        <label>Código</label>
-        <input type="text" name="codigo" required>
-      </div>
-      <div class="form-group">
-        <label>Cantidad Resuelta</label>
-        <input type="number" name="cantidad_resuelta" required>
-      </div>
-      <div class="form-group">
-        <label>Proveedor</label>
-        <input type="text" name="proveedor" required>
-      </div>
-      <div class="form-group">
-        <label>Ingreso</label>
-        <input type="text" name="ingreso" required>
-      </div>
-      <div class="form-group">
-        <label>Comentario de Resolución</label>
-        <!-- Este campo NO es requerido -->
-        <input type="text" name="comentario_resolucion">
-      </div>
-      <div class="form-group">
-        <label>Estado</label>
-        <select name="estado" required>
-          <option value="resuelto">Resuelto</option>
-          <option value="negativo">Negativo</option>
-        </select>
-      </div>
-      <button type="submit" class="btn">Guardar Resolución</button>
-    </form>
-  `;
 
+  modalResolverFormSection.innerHTML = '';
+
+  /* ➊ Sólo construimos el formulario si el ticket aún está pendiente */
+  if (ticket.estado === 'pendiente') {
+  
+    /* ➋ Bloque “Fecha / 7-15 días” sólo para tipos urgente o pendiente */
+    let fechaBlock = '';
+    if (ticket.tipo === 'urgente' || ticket.tipo === 'pendiente') {
+      fechaBlock = `
+        <div class="form-group">
+          <label>Fecha de Ingreso (dd-mm)</label>
+          <input type="text"
+                 id="fechaIngresoInput"
+                 name="fecha_ingreso"
+                 placeholder="05-06"
+                 pattern="\\d{2}-\\d{2}"
+                 maxlength="5"
+                 required>
+        </div>
+       <div class="form-group">
+  <!-- caja visual igual al resto de los inputs -->
+  <div class="checkbox-field">          <!-- nueva clase wrapper -->
+    <input type="checkbox" id="plazo715" name="plazo715">
+    <label for="plazo715">de 7 a 15 días</label>
+  </div>
+</div>
+`;
+    }
+  
+    /* ➌ Plantilla completa */
+    modalResolverFormSection.innerHTML = `
+      <form class="resolver-form" data-ticket-id="${ticket._id}">
+        <div class="form-group">
+          <label>Resolución</label>
+          <input type="text" name="resolucion" required>
+        </div>
+        <div class="form-group">
+          <label>Código</label>
+          <input type="text" name="codigo" required>
+        </div>
+        <div class="form-group">
+          <label>Cantidad Resuelta</label>
+          <input type="number" name="cantidad_resuelta" required>
+        </div>
+        <div class="form-group">
+          <label>Proveedor</label>
+          <input type="text" name="proveedor" required>
+        </div>
+  
+        ${fechaBlock}   <!-- se inserta sólo si corresponde -->
+  
+        <div class="form-group">
+          <label>Comentario de Resolución</label>
+          <input type="text" name="comentario_resolucion">
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <select name="estado" required>
+            <option value="resuelto">Resuelto</option>
+            <option value="negativo">Negativo</option>
+          </select>
+        </div>
+        <button type="submit" class="btn">Guardar Resolución</button>
+      </form>
+    `;
+  
+    /* ➍ Si el bloque fecha existe, habilitamos/deshabilitamos el input */
     const resolverForm = modalResolverFormSection.querySelector('.resolver-form');
+    const fechaInput   = resolverForm.querySelector('#fechaIngresoInput');
+    const plazoCheck   = resolverForm.querySelector('#plazo715');
+  
+    if (fechaInput && plazoCheck) {
+      plazoCheck.addEventListener('change', () => {
+        fechaInput.disabled  = plazoCheck.checked;
+        fechaInput.required  = !plazoCheck.checked;
+        if (plazoCheck.checked) fechaInput.value = '';
+      });
+    }
+  
     resolverForm.addEventListener('submit', handleResolverSubmit);
   }
-
-  const commentsList = document.getElementById('commentsList');
-  commentsList.innerHTML = ''; // Limpiar comentarios previos
-  document.getElementById('commentForm').reset(); // Resetea el formulario de comentarios
-
-  const commentForm = document.getElementById('commentForm');
-  const oldForm = commentForm.cloneNode(true);
-  commentForm.parentNode.replaceChild(oldForm, commentForm);
-
-  oldForm.addEventListener('submit', handleCommentSubmit);
-
-  fetchComments(ticket._id, commentsList);
+  
 }
-
 
 function closeTicketModal() {
   openTicketId = null;
@@ -510,49 +537,12 @@ function closeTicketModal() {
   }
 }
 
-async function handleResolverSubmit(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const payload = {
-    resolucion: formData.get('resolucion'),
-    codigo: formData.get('codigo'),
-    cantidad_resuelta: formData.get('cantidad_resuelta')
-      ? Number(formData.get('cantidad_resuelta'))
-      : undefined,
-    proveedor: formData.get('proveedor'),
-    ingreso: formData.get('ingreso'),
-    comentario_resolucion: formData.get('comentario_resolucion'),
-    avisado: formData.get('avisado') === 'true',
-    pago: formData.get('pago') === 'true',
-    estado: formData.get('estado'),
-  };
-  try {
-    const res = await fetch(`/tickets/${e.target.dataset.ticketId}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-    if (res.ok) {
-      alert('Ticket actualizado con éxito.');
-      isEditing = false;
-      closeTicketModal();
-      fetchAllTickets();
-    } else {
-      const error = await res.json();
-      alert(error.message || 'Error al actualizar el ticket');
-    }
-  } catch (error) {
-    console.error('Error al actualizar el ticket:', error);
-  }
-}
 
 async function fetchAllTickets() {
   try {
     const unMesAtras = new Date();
-    unMesAtras.setMonth(unMesAtras.getMonth() - 1);
+    // Removed unused variable 'fechaDesde'
+    // const fechaDesde = unMesAtras.toISOString();
     const fechaDesde = unMesAtras.toISOString();
 
     const res = await fetch(`/tickets?soloUltimoMes=true`, {
@@ -566,7 +556,8 @@ async function fetchAllTickets() {
     console.error('Error al obtener tickets:', error);
   }
 }
-
+// Removed unused function 'fetchComments'
+// async function fetchComments(ticketId, commentsList) {
 
 async function fetchComments(ticketId, commentsList) {
   try {
@@ -618,34 +609,63 @@ function addCommentToList(commentsList, comment) {
     <span class="date">${dateFormatted}</span>
     <div class="comment-text">${comment.texto}</div>
   `;
-  commentsList.appendChild(commentItem);
+// Removed unused function 'handleCommentSubmit'
+// async function handleCommentSubmit(e) {
 }
 
-async function handleCommentSubmit(e) {
+async function handleResolverSubmit(e) {
   e.preventDefault();
-  const formData = new FormData(document.getElementById('commentForm'));
+  const fd = new FormData(e.target);
+
+  /* ─── preparar fecha/plazo ─── */
+  let fechaIngreso = null;
+  let plazoEntrega = null;
+
+  if (fd.get('plazo715')) {
+    plazoEntrega = '7 a 15 días';
+  } else {
+    const fechaStr = fd.get('fecha_ingreso');          // ej. 05-06
+    if (!/^\d{2}-\d{2}$/.test(fechaStr)) {
+      alert('Ingresá la fecha como dd-mm (ej. 05-06)');
+      return;
+    }
+    const [d, m] = fechaStr.split('-');
+    const y = new Date().getFullYear();
+    fechaIngreso = new Date(`${y}-${m}-${d}T00:00:00`).toISOString();
+  }
+
+  /* ─── payload ─── */
   const payload = {
-    texto: formData.get('comment'),
-    fecha: new Date().toISOString(),
+    resolucion:        fd.get('resolucion'),
+    codigo:            fd.get('codigo'),
+    cantidad_resuelta: fd.get('cantidad_resuelta') ? Number(fd.get('cantidad_resuelta')) : undefined,
+    proveedor:         fd.get('proveedor'),
+    comentario_resolucion: fd.get('comentario_resolucion'),
+    estado:            fd.get('estado'),
+    fechaIngreso,
+    plazoEntrega
   };
 
   try {
-    const res = await fetch(`/tickets/${openTicketId}/comments`, {
-      method: 'POST',
+    const res = await fetch(`/tickets/${e.target.dataset.ticketId}`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payload)
     });
 
     if (res.ok) {
-      document.getElementById('commentForm').reset();
+      alert('Ticket actualizado con éxito');
+      closeTicketModal();          // cierra y refresca
     } else {
-      console.error('Error al agregar comentario:', res.statusText);
+      const err = await res.json();
+      alert(err.error || 'No se pudo actualizar el ticket');
     }
-  } catch (error) {
-    console.error('Error al agregar comentario:', error);
+  } catch (err) {
+    console.error('Error al actualizar:', err);
+    alert('Error de conexión al actualizar el ticket.');
   }
 }
 

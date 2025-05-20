@@ -6,56 +6,7 @@ html, body {
     background: #111; /* Fondo oscuro */
     color: #eee; /* Texto claro */
   }
-  
-  /* Header */
-  header {
-    text-align: center;
-    background: #000; /* Encabezado negro */
-    padding: 20px;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #ffd700;
-  }
-  
-  header .logo-page {
-    position: absolute;
-    left: 0;
-    top: 0;
-    margin: 0.5rem;
-    width: 4.5rem;
-  }
-  
-  header .logo-page:hover {
-    filter: drop-shadow(0px 4px 6px #ffd700);
-  }
-  
-  header h1 {
-    margin: 0;
-    font-size: 2rem;
-    color: #ffd700;
-    text-shadow: 2px 2px 10px rgba(255, 215, 0, 0.9);
-  }
-  
-  #logoutBtn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 1.5rem;
-    background: #ffd700;
-    color: #000;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 10px 17px;
-  }
-  
-  #logoutBtn:hover {
-    background: #e6c200;
-  }
-  
-  .logoLogOut {
-    width: 15px;
-    height: 15px;
-  }
+
   
   /* Alert Box */
   .alert-overlay {
@@ -724,9 +675,130 @@ html, body {
   background-color: #388e3c; /* Verde más oscuro */
 }
 
+.btn {
+  background-color: #ffd700; /* Amarillo */       
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
 
 
+/* ———  caja que imita a los <input> ——— */
+.checkbox-field{
+  display:flex;
+  align-items:center;
+  gap:.5rem;                 /* separación ✔ / texto */
+  justify-content:flex-start;
+  height:40px;               /* misma altura que los inputs */
+  padding:0 .8rem;
+  background:#1b1b1b;        /* mismo fondo del input */
+  border:1px solid #2c2c2c;  /* mismo borde del input */
+  border-radius:3px;
+}
 
+/* ✔ negro y del tamaño de diseño */
+.checkbox-field input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  accent-color:#000;         /* negro */
+  cursor:pointer;
+}
+
+/* texto amarillo, sin seleccionar */
+.checkbox-field label{
+  margin:0;
+  font-weight:600;
+  color:#FFD500;
+  cursor:pointer;
+  user-select:none;
+}
+
+
+/* HEADER PRINCIPAL */
+header.app-header {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content;
+  align-items: center;
+  background: #000;
+  border-bottom: 2px solid #ffd700;
+  padding: 0rem 0.5rem;    /* más espacio arriba/abajo y a los lados */
+  min-height: 5rem;        /* altura mínima para que no se achique */
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+/* BLOQUE IZQUIERDO: logo + urgentes */
+.header-left {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.header-left .logo-page {
+  width: 4rem;             /* agrandamos un poco el logo */
+  height: auto;
+}
+
+/* BOTÓN URGENTES */
+#btnUrgentes {
+  background: #ff6347;
+  border-radius: 5px;
+  padding: 0.60rem;         /* botón más grande para acompañar el header */
+  display: flex;
+  align-items: center;
+  margin-left: 0.5rem;
+  justify-content: center;
+  transition: background .2s, transform .2s;
+}
+#btnUrgentes:hover {
+  background: #e5533d;
+  transform: scale(1.05);
+}
+#btnUrgentes img {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* TÍTULO EN EL CENTRO */
+header.app-header h1 {
+  grid-column: 2;
+  justify-self: center;
+  margin: 0;
+  font-size: 2.25rem;       /* un poco más grande */
+  color: #ffd700;
+  text-shadow: 2px 2px 10px rgba(255,215,0,0.9);
+  white-space: nowrap;
+  margin-right: 4rem;
+}
+
+/* BLOQUE DERECHO: logout */
+.header-right {
+  grid-column: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#logoutBtn {
+  background: #ffd700;
+  border-radius: 5px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .2s;
+}
+#logoutBtn:hover {
+  background: #e6c200;
+}
+.header-right .logoLogOut {
+  width: 1rem;
+  height: 1rem;
+}
 
 
 

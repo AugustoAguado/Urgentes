@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Urgentes del Día</title>
+  <link rel="icon" href="./assets/IsologoBlanco.webp" type="image/x-icon">
+  <link rel="stylesheet" href="./css/compras.css"/> <!-- reaprovechamos estilos -->
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-left">
+          <img class="logo-page" src="./assets/IsologoBlanco.webp" alt="Logo"/>
+          <!-- Botón “Urgentes” que vuelve a la página anterior -->
+<a id="btnUrgentes" class="icon-btn" href="javascript:history.back()" title="Volver a Urgentes">
+    <img src="./assets/arrow-u-up-left-svgrepo-com.svg" alt="Urgentes">
+  </a>
+  
+        </div>
+        <h1 id="tituloVendedor">URGENTES DIARIOS</h1>
+        <div class="header-right">
+          <a id="logoutBtn" title="Salir">
+            <img class="logoLogOut" src="./assets/cerrar-sesion.svg" alt="Salir"/>
+          </a>
+        </div>
+      </header>
+      
+
+  <section class="urgentes-section">
+    <h2>Tickets Urgentes</h2>
+
+    <!-- tabla -->
+    <div id="urgentesList">
+      <table class="tickets-table">
+        <thead>
+          <tr>
+            <th class="center-col">FECHA</th>
+            <th class="center-col">TIPO</th>
+            <th class="center-col">USUARIO</th>
+            <th class="center-col">CLIENTE</th>
+            <th class="center-col">COD/POS</th>
+            <th class="center-col">CANT</th>
+            <th class="center-col">INGRESO</th>
+            <th class="center-col">LLEGÓ</th>
+          </tr>
+        </thead>
+        <tbody id="urgentesTbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- modal reaprovechado -->
+  <div class="overlay" id="overlay" style="display:none;"></div>
+  <div id="ticketModal" class="ticket-modal" style="display:none;">
+    <div class="modal-content">
+      <h3>Detalles del Urgente</h3>
+      <span class="short-id" id="modalShortId"></span>
+      <span class="hora" id="modalFecha"></span>
+
+      <table class="ticket-table" id="modalBody"></table>
+      <button class="btn" id="closeModalBtn" style="margin-top:1rem;">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/urgentes.js"></script>
+</body>
+</html>

@@ -12,8 +12,10 @@ const {
   updateLlego,
   cancelTicket,
   updateRubro,
+  getUrgentTickets,
 } = require('../controllers/ticketController');
 const { auth } = require('../middleware/authMiddleware');
+
 
 router.post('/', auth, createTicket);
 router.get('/mis', auth, getMyTickets);
@@ -26,5 +28,7 @@ router.patch('/:id/update-llego', auth, updateLlego);
 router.delete('/:id', auth, deleteTicket);
 router.patch('/:id/anular', auth, cancelTicket);
 router.patch('/:id/update-rubro', auth, updateRubro);
+router.get('/urgentes', auth, getUrgentTickets);
+
 
 module.exports = router;

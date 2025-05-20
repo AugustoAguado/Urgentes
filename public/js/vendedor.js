@@ -283,68 +283,101 @@ function renderTickets(tickets) {
     const detailCell = document.createElement('td');
     detailCell.colSpan = 11;
 
-    let detalleContent = '';
-    if (ticket.estado === 'negativo' || ticket.estado === 'resuelto') {
-      detalleContent = `
-        <span class="short-id">ID: ${ticket.shortId}</span>
-        <table class="detalle-table">
-          <tr><th>RESOLUCIÓN</th><td>${ticket.resolucion || '--'}</td></tr>
-          <tr><th>COD/POS</th><td class="mayusc">${ticket.codigo}</td></tr>
-          <tr><th>PROVEEDOR</th><td>${ticket.proveedor || '--'}</td></tr>
-          <tr><th>INGRESO</th><td>${ticket.ingreso || '--'}</td></tr>
-          <tr><th>CANTIDAD RESUELTA</th><td>${ticket.cantidad_resuelta || '--'}</td></tr>
-          <tr><th>COMENTARIO</th><td>${ticket.comentario_resolucion || '--'}</td></tr>
-          <tr><th>CLIENTE</th><td>${ticket.cliente || '--'}</td></tr>
-          <tr><th>AVISADO</th><td>${ticket.avisado ? 'Sí' : 'No'}</td></tr>
-          <tr><th>PAGO</th><td>${ticket.pago ? 'Sí' : 'No'}</td></tr>
-        </table>
-      `;
-    } else {
-      detalleContent = `
-        <span class="short-id">ID: ${ticket.shortId}</span>
-        <table class="detalle-table">
-          <tr><th>TIPO</th><td><span class="badge ${tipoClass}">${ticket.tipo}</span></td></tr>
-          <tr><th>CHASIS</th><td>${ticket.chasis || '--'}</td></tr>
-          <tr><th>COD/POS</th><td class="mayusc">${ticket.cod_pos}</td></tr>
-          <tr><th>CANT</th><td>${ticket.cant}</td></tr>
-          <tr><th>CLIENTE</th><td>${ticket.cliente}</td></tr>
-          <tr><th>COMENTARIO</th><td>${ticket.comentario || '--'}</td></tr>
-          <tr><th>AVISADO</th><td>${ticket.avisado ? 'Sí' : 'No'}</td></tr>
-          <tr><th>PAGO</th><td>${ticket.pago ? 'Sí' : 'No'}</td></tr>
-        </table>
-      `;
-    }
+   /* ───────── DETALLE PARA tickets RESUELTO / NEGATIVO ───────── */
+let detalleContent = '';
+if (ticket.estado === 'negativo' || ticket.estado === 'resuelto') {
 
-    detalleContent += `
-      <form class="edit-form" data-ticket-id="${ticket._id}">
-        <div class="form-group">
-          <label>¿Avisado?</label>
-          <select name="avisado">
-            <option value="false" ${!ticket.avisado ? 'selected' : ''}>No</option>
-            <option value="true" ${ticket.avisado ? 'selected' : ''}>Sí</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>¿Pago?</label>
-          <select name="pago">
-            <option value="false" ${!ticket.pago ? 'selected' : ''}>No</option>
-            <option value="true" ${ticket.pago ? 'selected' : ''}>Sí</option>
-          </select>
-        </div>
-        <button type="submit" class="btn">Guardar</button>
-      </form>
-        <button class="btn-anular-ticket" data-ticket-id="${ticket._id}">
-      Anular Ticket
-        </button>
-      <div class="comments-section">
-        <h4>Comentarios</h4>
-        <ul class="comments-list" id="comments-${ticket._id}"></ul>
-        <form class="comment-form" data-ticket-id="${ticket._id}">
-          <textarea name="comment" placeholder="Agregar un comentario..." required></textarea>
-          <button type="submit" class="btn">Agregar Comentario</button>
-        </form>
-      </div>
-    `;
+  /* fila fecha o plazo (“7 a 15 días”) */
+  const filaFecha =
+    ticket.fechaIngreso || ticket.plazoEntrega
+      ? `<tr>
+           <th>FECHA INGRESO</th>
+           <td>${
+              ticket.fechaIngreso
+                ? new Date(ticket.fechaIngreso)
+                    .toLocaleDateString('es-ES')
+                : ticket.plazoEntrega           // "7 a 15 días"
+            }</td>
+         </tr>`
+      : '';
+
+  /* fila ingreso texto libre (antiguo) */
+  const filaIngresoTxt =
+    ticket.ingreso
+      ? `<tr>
+           <th>FECHA INGRESO</th>
+           <td>${ticket.ingreso}</td>
+         </tr>`
+      : '';
+
+  detalleContent = `
+    <span class="short-id">ID: ${ticket.shortId}</span>
+    <table class="detalle-table">
+      <tr><th>RESOLUCIÓN</th><td>${ticket.resolucion || '--'}</td></tr>
+      <tr><th>COD/POS</th><td class="mayusc">${ticket.codigo || '--'}</td></tr>
+      <tr><th>PROVEEDOR</th><td>${ticket.proveedor || '--'}</td></tr>
+      ${filaFecha}
+      ${filaIngresoTxt}
+      <tr><th>CANTIDAD RESUELTA</th><td>${ticket.cantidad_resuelta || '--'}</td></tr>
+      <tr><th>COMENTARIO</th><td>${ticket.comentario_resolucion || '--'}</td></tr>
+      <tr><th>CLIENTE</th><td>${ticket.cliente || '--'}</td></tr>
+      <tr><th>AVISADO</th><td>${ticket.avisado ? 'Sí' : 'No'}</td></tr>
+      <tr><th>PAGO</th><td>${ticket.pago ? 'Sí' : 'No'}</td></tr>
+    </table>
+  `;
+
+} else {   /* ───────── DETALLE PARA tickets PENDIENTE ───────── */
+
+  detalleContent = `
+    <span class="short-id">ID: ${ticket.shortId}</span>
+    <table class="detalle-table">
+      <tr><th>TIPO</th>
+          <td><span class="badge ${tipoClass}">${ticket.tipo}</span></td></tr>
+      <tr><th>CHASIS</th><td>${ticket.chasis || '--'}</td></tr>
+      <tr><th>COD/POS</th><td class="mayusc">${ticket.cod_pos}</td></tr>
+      <tr><th>CANT</th><td>${ticket.cant}</td></tr>
+      <tr><th>CLIENTE</th><td>${ticket.cliente}</td></tr>
+      <tr><th>COMENTARIO</th><td>${ticket.comentario || '--'}</td></tr>
+      <tr><th>AVISADO</th><td>${ticket.avisado ? 'Sí' : 'No'}</td></tr>
+      <tr><th>PAGO</th><td>${ticket.pago ? 'Sí' : 'No'}</td></tr>
+    </table>
+  `;
+}
+
+/* ───────── resto del detalle (form avisado/pago, comentarios, anular, etc.) ───────── */
+detalleContent += `
+  <form class="edit-form" data-ticket-id="${ticket._id}">
+    <div class="form-group">
+      <label>¿Avisado?</label>
+      <select name="avisado">
+        <option value="false" ${!ticket.avisado ? 'selected' : ''}>No</option>
+        <option value="true"  ${ ticket.avisado ? 'selected' : ''}>Sí</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>¿Pago?</label>
+      <select name="pago">
+        <option value="false" ${!ticket.pago ? 'selected' : ''}>No</option>
+        <option value="true"  ${ ticket.pago ? 'selected' : ''}>Sí</option>
+      </select>
+    </div>
+    <button type="submit" class="btn">Guardar</button>
+  </form>
+
+  <button class="btn-anular-ticket" data-ticket-id="${ticket._id}">
+    Anular Ticket
+  </button>
+
+  <div class="comments-section">
+    <h4>Comentarios</h4>
+    <ul class="comments-list" id="comments-${ticket._id}"></ul>
+    <form class="comment-form" data-ticket-id="${ticket._id}">
+      <textarea name="comment" placeholder="Agregar un comentario..." required></textarea>
+      <button type="submit" class="btn">Agregar Comentario</button>
+    </form>
+  </div>
+`;
+
 
     detailCell.innerHTML = detalleContent;
     detailRow.appendChild(detailCell);
