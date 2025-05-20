@@ -497,9 +497,30 @@ if (tipoTicketElement) {
     `;
   
     /* ➍ Si el bloque fecha existe, habilitamos/deshabilitamos el input */
-    const resolverForm = modalResolverFormSection.querySelector('.resolver-form');
-    const fechaInput   = resolverForm.querySelector('#fechaIngresoInput');
-    const plazoCheck   = resolverForm.querySelector('#plazo715');
+  const resolverForm = modalResolverFormSection.querySelector('.resolver-form');
+  const fechaInput   = resolverForm.querySelector('#fechaIngresoInput');
+  const plazoCheck   = resolverForm.querySelector('#plazo715');
+  const estadoSelect = resolverForm.querySelector('select[name="estado"]');
+
+  const toggleFechaFields = () => {
+  const isNegativo = estadoSelect && estadoSelect.value === 'negativo';
+  if (fechaInput) {
+    fechaInput.disabled  = isNegativo || (plazoCheck?.checked ?? false);
+    fechaInput.required  = !isNegativo && !(plazoCheck?.checked ?? false);
+    if (isNegativo) fechaInput.value = '';
+  }
+  if (plazoCheck) plazoCheck.disabled = isNegativo;   // no tiene sentido tildar 7-15 días si es negativo
+};
+
+if (plazoCheck) {
+  plazoCheck.addEventListener('change', toggleFechaFields);
+}
+if (estadoSelect) {
+  estadoSelect.addEventListener('change', toggleFechaFields);
+}
+toggleFechaFields();   // estado inicial
+  
+
   
     if (fechaInput && plazoCheck) {
       plazoCheck.addEventListener('change', () => {
@@ -658,15 +679,19 @@ async function handleResolverSubmit(e) {
   const fd = new FormData(e.target);
 
   /* ─── preparar fecha/plazo ─── */
-  let fechaIngreso = null;
+  let fechaIngreso;
   let plazoEntrega = null;
+  const estadoTicket = fd.get('estado');
 
-  if (fd.get('plazo715')) {
+
+
+  if (estadoTicket === 'negativo') {
+  } else if (fd.get('plazo715')) {
     plazoEntrega = '7 a 15 días';
   } else {
-    const fechaStr = fd.get('fecha_ingreso');          // ej. 05-06
+    const fechaStr = fd.get('fecha_ingreso');   // ej.: 05-06
     if (!/^\d{2}-\d{2}$/.test(fechaStr)) {
-      alert('Ingresá la fecha como dd-mm (ej. 05-06)');
+      alert('Ingresá la fecha como dd-mm (ej. 05-06) o marcá 7-15 días');
       return;
     }
     const [d, m] = fechaStr.split('-');
