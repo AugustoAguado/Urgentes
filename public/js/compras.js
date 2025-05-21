@@ -57,6 +57,17 @@
         window.location.href = 'index.html';
       });
     }
+
+  document.addEventListener(
+  'submit',
+   (e) => {
+     if (e.target.matches('form[data-ajax]')) {
+       e.preventDefault();
+     }
+   },
+   true        
+ );
+
   });
 
   const filterInput = document.getElementById('filterInput');
@@ -180,7 +191,7 @@
       const comentario = ticket.comentario || 'N/A';
       const comentarioTruncado = comentario.length > 10 ? comentario.slice(0, 10) + '...' : comentario;
       const clienteTruncado = ticket.cliente?.length > 15 ? ticket.cliente.slice(0, 15) + '...' : ticket.cliente;
-      codposTruncado = ticket.cod_pos?.length > 15 ? ticket.cod_pos.slice(0, 15) + '...' : ticket.cod_pos;
+      const codposTruncado = ticket.cod_pos?.length > 15 ? ticket.cod_pos.slice(0, 15) + '...' : ticket.cod_pos;
       row.classList.add('ticket-header');
       row.innerHTML = `
         <td class="center-col">${fechaFormateada}</td>
@@ -472,7 +483,7 @@
     
       /* ➌ Plantilla completa */
       modalResolverFormSection.innerHTML = `
-        <form class="resolver-form" data-ticket-id="${ticket._id}">
+        <form class="resolver-form" data-ticket-id="${ticket._id}" data-ajax>
           <div class="form-group">
             <label>Resolución</label>
             <input type="text" name="resolucion" required>
@@ -508,27 +519,35 @@
       `;
     
       /* ➍ Si el bloque fecha existe, habilitamos/deshabilitamos el input */
-    const resolverForm = modalResolverFormSection.querySelector('.resolver-form');
-    const fechaInput   = resolverForm.querySelector('#fechaIngresoInput');
-    const estadoSelect = resolverForm.querySelector('select[name="estado"]');
-    const plazoSelect  = resolverForm.querySelector('#plazoSelect');
 
-  const toggleFechaFields = () => {
-    const isNegativo   = estadoSelect.value === 'negativo';
-    const plazoElegido = plazoSelect.value !== '';
+ const resolverForm = modalResolverFormSection.querySelector('.resolver-form');
 
-    fechaInput.disabled = isNegativo || plazoElegido;
-    fechaInput.required = !isNegativo && !plazoElegido;
-    if (fechaInput.disabled) fechaInput.value = '';
-    plazoSelect.disabled = isNegativo;         // no tiene sentido plazo para negativos
-  };
+if (resolverForm) {
+  const fechaInput   = resolverForm.querySelector('#fechaIngresoInput');
+  const estadoSelect = resolverForm.querySelector('select[name="estado"]');
+  const plazoSelect  = resolverForm.querySelector('#plazoSelect');
 
-  plazoSelect.addEventListener('change', toggleFechaFields);
-  estadoSelect.addEventListener('change', toggleFechaFields);
-  toggleFechaFields();   // estado inicial
-    
-    
-      resolverForm.addEventListener('submit', handleResolverSubmit);
+  if (plazoSelect) {
+    const toggleFechaFields = () => {
+      const isNegativo   = estadoSelect.value === 'negativo';
+      const plazoElegido = plazoSelect.value !== '';
+
+      if (fechaInput) {
+        fechaInput.disabled = isNegativo || plazoElegido;
+        fechaInput.required = !isNegativo && !plazoElegido;
+        if (fechaInput.disabled) fechaInput.value = '';
+      }
+      plazoSelect.disabled = isNegativo;
+    };
+
+    plazoSelect.addEventListener('change', toggleFechaFields);
+    estadoSelect.addEventListener('change', toggleFechaFields);
+    toggleFechaFields();
+  }
+
+  // listener de envío AJAX
+  resolverForm.addEventListener('submit', handleResolverSubmit);
+}
     }
 
     /* carga inicial + bind del formulario */
@@ -672,65 +691,74 @@
 
 
 
-  async function handleResolverSubmit(e) {
-    e.preventDefault();
-    const fd           = new FormData(e.target);
-    const estado       = fd.get('estado');          // resuelto | negativo
-    const plazoElegido = fd.get('plazoSelect');     // '' | '3 a 5 días' | '7 a 15 días' | '15 a 20 días'
+async function handleResolverSubmit(e) {
+  e.preventDefault();
 
-    let fechaIngreso, plazoEntrega;
+  const form   = e.target;
+  const fd     = new FormData(form);
 
-    if (estado === 'negativo') {
-      // ni fecha ni plazo
-    } else if (plazoElegido) {
-      plazoEntrega = plazoElegido;                  // cualquiera de las tres bandas
-    } else {
-      const fechaStr = (fd.get('fecha_ingreso') || '').trim();
-      if (!/^\d{2}-\d{2}$/.test(fechaStr)) {
-        alert('Ingresá la fecha como dd-mm (ej. 05-06) o seleccioná un plazo');
-        return;
-      }
-      const [d, m] = fechaStr.split('-');
-      const y      = new Date().getFullYear();
-      fechaIngreso = new Date(`${y}-${m}-${d}T00:00:00`).toISOString();
+  const estado       = fd.get('estado');          // resuelto | negativo
+  const fechaInput   = form.querySelector('#fechaIngresoInput'); // puede ser null
+  const plazoSelect  = form.querySelector('#plazoSelect');       // puede ser null
+  const fechaStr     = fechaInput ? (fd.get('fecha_ingreso') || '').trim() : '';
+  const plazoElegido = plazoSelect ? fd.get('plazoSelect') : '';
+
+  let fechaIngreso, plazoEntrega;
+
+  /* ---------- reglas ---------- */
+  if (estado === 'negativo') {
+    // nada: ni fecha ni plazo
+  } else if (plazoSelect && plazoElegido) {
+    plazoEntrega = plazoElegido;                  // 3-5 | 7-15 | 15-20
+  } else if (fechaInput) {
+    // sólo valida si realmente hay <input fecha>
+    if (!/^\d{2}-\d{2}$/.test(fechaStr)) {
+      alert('Ingresá la fecha como dd-mm (ej. 05-06) o seleccioná un plazo');
+      return;
     }
-
-    /* ---------- payload ---------- */
-    const payload = {
-      resolucion:            fd.get('resolucion')            || undefined,
-      codigo:                fd.get('codigo')                || undefined,
-      cantidad_resuelta:     fd.get('cantidad_resuelta')
-                            ? Number(fd.get('cantidad_resuelta')) : undefined,
-      proveedor:             fd.get('proveedor')             || undefined,
-      comentario_resolucion: fd.get('comentario_resolucion') || undefined,
-      estado
-    };
-    if (fechaIngreso) payload.fechaIngreso = fechaIngreso;
-    if (plazoEntrega) payload.plazoEntrega = plazoEntrega;
-
-    /* ---------- envío ---------- */
-    try {
-      const res = await fetch(`/tickets/${e.target.dataset.ticketId}`, {
-        method : 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization : `Bearer ${token}`
-        },
-        body   : JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        alert('Ticket actualizado con éxito');
-        closeTicketModal();
-      } else {
-        const err = await res.json();
-        alert(err.error || 'No se pudo actualizar el ticket');
-      }
-    } catch (err) {
-      console.error('Error al actualizar:', err);
-      alert('Error de conexión al actualizar el ticket.');
-    }
+    const [d, m] = fechaStr.split('-');
+    const y      = new Date().getFullYear();
+    fechaIngreso = new Date(`${y}-${m}-${d}T00:00:00`).toISOString();
   }
+  /* -------------------------------- */
+
+  /* ---------- payload ---------- */
+  const payload = {
+    resolucion:            fd.get('resolucion')            || undefined,
+    codigo:                fd.get('codigo')                || undefined,
+    cantidad_resuelta:     fd.get('cantidad_resuelta')
+                          ? Number(fd.get('cantidad_resuelta')) : undefined,
+    proveedor:             fd.get('proveedor')             || undefined,
+    comentario_resolucion: fd.get('comentario_resolucion') || undefined,
+    estado
+  };
+  if (fechaIngreso) payload.fechaIngreso = fechaIngreso;
+  if (plazoEntrega) payload.plazoEntrega = plazoEntrega;
+
+  /* ---------- envío ---------- */
+  try {
+    const res = await fetch(`/tickets/${form.dataset.ticketId}`, {
+      method : 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization : `Bearer ${token}`
+      },
+      body   : JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      alert('Ticket actualizado con éxito');
+      closeTicketModal();
+    } else {
+      const err = await res.json();
+      alert(err.error || 'No se pudo actualizar el ticket');
+    }
+  } catch (err) {
+    console.error('Error al actualizar:', err);
+    alert('Error de conexión al actualizar el ticket.');
+  }
+}
+
 
 
 
