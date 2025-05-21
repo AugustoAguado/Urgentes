@@ -52,7 +52,14 @@ const TicketSchema = new mongoose.Schema({
     compras: { type: Boolean, default: false },
   },
   fechaIngreso: Date,
-  plazoEntrega: String, 
+  plazoEntrega: {
+  type: String,
+  enum: [
+    '3 a 5 días',
+    '7 a 15 días',
+    '15 a 20 días'
+  ]
+}
 });
 
 module.exports = mongoose.model('Ticket', TicketSchema);

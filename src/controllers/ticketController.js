@@ -155,11 +155,17 @@ exports.resolveTicket = async (req, res) => {
         ticket.fechaIngreso = fechaIngreso ? new Date(fechaIngreso) : undefined;
       }
       // NUEVO
-      if (plazoEntrega === '7 a 15 días') {
-        ticket.plazoEntrega = '7 a 15 días';
-      } else {
-        ticket.plazoEntrega = undefined;     // por si se desmarca
-      }
+    
+      // valores admitidos
+const PLAZOS_VALIDOS = ['3 a 5 días', '7 a 15 días', '15 a 20 días'];
+
+if (plazoEntrega && PLAZOS_VALIDOS.includes(plazoEntrega)) {
+  ticket.plazoEntrega = plazoEntrega;          // guarda cualquiera de los tres
+} else if (plazoEntrega === '' || plazoEntrega === null) {
+  ticket.plazoEntrega = undefined;             // por si el usuario lo borra
+}
+
+
     }
 
     if (['vendedor', 'cdr'].includes(req.user.role)) {
@@ -419,7 +425,9 @@ exports.getUrgentTickets = async (req, res) => {
       // Comportamiento original para los demás roles
       filter.$or = [
         { fechaIngreso: { $gte: hoy, $lt: mañana } },               // ingresan hoy
-        { plazoEntrega: '7 a 15 días', llego: { $ne: 'si' } }       // o 7-15 días y no llegó
+        { plazoEntrega: { $in: ['3 a 5 días', '7 a 15 días', '15 a 20 días'] },
+        llego: { $ne: 'si' }
+        }       // o 7-15 días y no llegó
       ];
       if (req.user.role === 'compras' && req.user.username !== 'comprasadmin') {
         filter.usuariosAsignados = req.user.id;
