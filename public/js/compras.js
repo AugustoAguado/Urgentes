@@ -411,6 +411,14 @@ if (tipoTicketElement) {
 
 
   const modalResolucionSection = document.getElementById('modalResolucionSection');
+ 
+  const fechaIngStr = ticket.fechaIngreso
+            ? new Date(ticket.fechaIngreso).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit'
+            })
+         : (ticket.plazoEntrega || '--');
+
   modalResolucionSection.innerHTML = '';
   if (ticket.estado === 'resuelto' || ticket.estado === 'negativo' || ticket.estado === 'anulado') {
     modalResolucionSection.innerHTML = `
@@ -421,7 +429,7 @@ if (tipoTicketElement) {
         <tr><th>RESOLUCIÓN</th><td>${ticket.resolucion || 'N/A'}</td></tr>
         <tr><th>COD/POS</th><td>${ticket.codigo}</td></tr>
         <tr><th>PROVEEDOR</th><td>${ticket.proveedor || 'N/A'}</td></tr>
-        <tr><th>INGRESO</th><td>${ticket.ingreso || 'N/A'}</td></tr>
+        <tr><th>INGRESO</th><td>${ticket.fechaIngreso ? fechaIngStr : (ticket.plazoEntrega || 'N/A')}</td></tr>
         <tr><th>CANTIDAD RESUELTA</th><td>${ticket.cantidad_resuelta || 'N/A'}</td></tr>
         <tr><th>COMENTARIO</th><td>${ticket.comentario_resolucion || 'N/A'}</td></tr>
       </table>
@@ -452,7 +460,7 @@ if (tipoTicketElement) {
        <div class="form-group">
   <!-- caja visual igual al resto de los inputs -->
   <div class="checkbox-field">          <!-- nueva clase wrapper -->
-    <input type="checkbox" id="plazo715" name="plazo715">
+    <input type="checkbox" id="plazo715" name="plazo715" value="true">
     <label for="plazo715">de 7 a 15 días</label>
   </div>
 </div>
@@ -676,39 +684,39 @@ function addCommentToList(commentsList, comment) {
 
 async function handleResolverSubmit(e) {
   e.preventDefault();
-  const fd = new FormData(e.target);
+  const fd            = new FormData(e.target);
+  const estadoTicket  = fd.get('estado');           // resuelto | negativo
+  const plazoChecked  = e.target.querySelector('#plazo715')?.checked ?? false;
 
-  /* ─── preparar fecha/plazo ─── */
-  let fechaIngreso;
-  let plazoEntrega = null;
-  const estadoTicket = fd.get('estado');
+  let fechaIngreso    = undefined;   // solo se envían si quedan seteadas
+  let plazoEntrega    = undefined;   
 
-  // ¿El formulario tiene el input fecha_ingreso?
-  const necesitaFecha = fd.has('fecha_ingreso');
-
-  if (estadoTicket === 'negativo' || !necesitaFecha) {
-    // Para negativos o formularios sin fecha, no enviamos nada
-  } else if (fd.get('plazo715')) {
+  /* ── PRIORIDAD DE REGLAS ─────────────────────────────────────────── */
+  if (estadoTicket === 'negativo') {
+    // nada: ni fecha ni plazo
+  } else if (plazoChecked) {
     plazoEntrega = '7 a 15 días';
   } else {
-    const fechaStr = (fd.get('fecha_ingreso') || '').trim(); // puede venir string vacío
+    const fechaStr = (fd.get('fecha_ingreso') || '').trim();
     if (!/^\d{2}-\d{2}$/.test(fechaStr)) {
       alert('Ingresá la fecha como dd-mm (ej. 05-06) o marcá 7-15 días');
       return;
     }
     const [d, m] = fechaStr.split('-');
-    const y = new Date().getFullYear();
+    const y      = new Date().getFullYear();
     fechaIngreso = new Date(`${y}-${m}-${d}T00:00:00`).toISOString();
   }
 
-  /* ─── payload ─── */
+  /* ── ARMADO DEL PAYLOAD ─────────────────────────────────────────── */
   const payload = {
-    resolucion:        fd.get('resolucion'),
-    codigo:            fd.get('codigo'),
-    cantidad_resuelta: fd.get('cantidad_resuelta') ? Number(fd.get('cantidad_resuelta')) : undefined,
-    proveedor:         fd.get('proveedor'),
-    comentario_resolucion: fd.get('comentario_resolucion'),
-    estado:            estadoTicket,
+    resolucion:            fd.get('resolucion')              || undefined,
+    codigo:                fd.get('codigo')                  || undefined,
+    cantidad_resuelta:     fd.get('cantidad_resuelta')
+                           ? Number(fd.get('cantidad_resuelta'))
+                           : undefined,
+    proveedor:             fd.get('proveedor')               || undefined,
+    comentario_resolucion: fd.get('comentario_resolucion')   || undefined,
+    estado:                estadoTicket
   };
 
   if (fechaIngreso)  payload.fechaIngreso  = fechaIngreso;
@@ -719,7 +727,7 @@ async function handleResolverSubmit(e) {
       method:  'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(payload)
     });
@@ -736,6 +744,7 @@ async function handleResolverSubmit(e) {
     alert('Error de conexión al actualizar el ticket.');
   }
 }
+
 
 
 const tituloCompras = document.getElementById('tituloCompras');

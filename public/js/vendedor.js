@@ -286,38 +286,13 @@ function renderTickets(tickets) {
    /* ───────── DETALLE PARA tickets RESUELTO / NEGATIVO ───────── */
 let detalleContent = '';
 if (ticket.estado === 'negativo' || ticket.estado === 'resuelto') {
-
-  /* fila fecha o plazo (“7 a 15 días”) */
-  const filaFecha =
-    ticket.fechaIngreso || ticket.plazoEntrega
-      ? `<tr>
-           <th>FECHA INGRESO</th>
-           <td>${
-              ticket.fechaIngreso
-                ? new Date(ticket.fechaIngreso)
-                    .toLocaleDateString('es-ES')
-                : ticket.plazoEntrega           // "7 a 15 días"
-            }</td>
-         </tr>`
-      : '';
-
-  /* fila ingreso texto libre (antiguo) */
-  const filaIngresoTxt =
-    ticket.ingreso
-      ? `<tr>
-           <th>FECHA INGRESO</th>
-           <td>${ticket.ingreso}</td>
-         </tr>`
-      : '';
-
   detalleContent = `
     <span class="short-id">ID: ${ticket.shortId}</span>
     <table class="detalle-table">
       <tr><th>RESOLUCIÓN</th><td>${ticket.resolucion || '--'}</td></tr>
       <tr><th>COD/POS</th><td class="mayusc">${ticket.codigo || '--'}</td></tr>
       <tr><th>PROVEEDOR</th><td>${ticket.proveedor || '--'}</td></tr>
-      ${filaFecha}
-      ${filaIngresoTxt}
+      <tr><th>FECHA INGRESO</th><td>${ticket.fechaIngreso ? new Date(ticket.fechaIngreso).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) : ticket.plazoEntrega || "--"}</td></tr>
       <tr><th>CANTIDAD RESUELTA</th><td>${ticket.cantidad_resuelta || '--'}</td></tr>
       <tr><th>COMENTARIO</th><td>${ticket.comentario_resolucion || '--'}</td></tr>
       <tr><th>CLIENTE</th><td>${ticket.cliente || '--'}</td></tr>
