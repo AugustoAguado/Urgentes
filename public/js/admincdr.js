@@ -24,6 +24,27 @@ socket.on('ticketActualizado', () => {
   handleSocketEvent();
 });
 
+  socket.on('nuevaVersion', () => {
+  const cartel = document.createElement('div');
+  cartel.id = 'aviso-version';
+  cartel.style.position = 'fixed';
+  cartel.style.bottom = '0';
+  cartel.style.left = '0';
+  cartel.style.width = '100%';
+  cartel.style.backgroundColor = '#ffd700';
+  cartel.style.color = '#000';
+  cartel.style.textAlign = 'center';
+  cartel.style.padding = '1rem';
+  cartel.style.zIndex = '9999';
+  cartel.style.fontWeight = 'bold';
+  cartel.style.boxShadow = '0 -2px 10px rgba(0,0,0,0.3)';
+  cartel.innerText = 'Hay una nueva versión. Por favor, actualizá la página.';
+
+  if (!document.getElementById('aviso-version')) {
+    document.body.appendChild(cartel);
+  }
+});
+
 socket.on('nuevoComentario', ({ ticketId, comentario }) => {
   if (openTicketId === ticketId) {
     const commentsList = document.getElementById('commentsList');
