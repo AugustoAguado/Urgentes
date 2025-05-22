@@ -13,40 +13,6 @@ const versionRouter = require('./routes/version');
 
 const PORT = process.env.PORT || 3000;
 
-// 🔒 HEADERS para romper caché
-app.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.setHeader('Surrogate-Control', 'no-store');
-  next();
-});
-
-// 🚨 Recarga forzada automática temporal
-const vencimiento = new Date('2025-05-22T12:00:00'); // Ajustá la fecha si querés
-
-app.get('/', (req, res, next) => {
-  const ahora = new Date();
-  if (ahora < vencimiento) {
-    return res.send(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Actualizando versión...</title>
-          <script>
-            console.log("Forzando recarga del frontend...");
-            window.location.reload(true);
-          </script>
-        </head>
-        <body>
-          <p>Actualizando versión, por favor espere...</p>
-        </body>
-      </html>
-    `);
-  }
-  next();
-});
 
 // 🔁 Endpoint de versión
 app.get('/version', (req, res) => {
