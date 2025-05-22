@@ -79,33 +79,35 @@ exports.getMyTickets = async (req, res) => {
 };
 
 
-
-
+// src/controllers/ticketController.js
 
 exports.getAllTickets = async (req, res) => {
-  // Se permite acceso a 'compras', 'admin' Y 'admincdr'
+  // Roles permitidos
   if (!['compras', 'admin', 'admincdr'].includes(req.user.role)) {
     return res.status(403).json({ error: 'Acceso no autorizado' });
   }
 
   try {
-    let filter = {};
+    const filter = {};
 
-    // Filtro automático: solo últimos 30 días
-    const fechaLimite = new Date();
-    fechaLimite.setMonth(fechaLimite.getMonth() - 1);
-    filter.fecha = { $gte: fechaLimite };
+    // Si no vienen explicitamente soloUltimoMes=false, aplico filtro de 30 días
+    const soloUltimoMes = req.query.soloUltimoMes !== 'false';
+    if (soloUltimoMes) {
+      const fechaLimite = new Date();
+      fechaLimite.setMonth(fechaLimite.getMonth() - 1);
+      filter.fecha = { $gte: fechaLimite };
+    }
 
-    // Si es 'compras' (no admin) => solo los asignados
+    // Si es compras “normal”, sólo tickets asignados
     if (req.user.role === 'compras' && req.user.username !== 'comprasadmin') {
       filter.usuariosAsignados = req.user.id;
     }
-    // Si es 'admincdr' => filtrar los tickets cuyo creador sea de rol 'cdr'
+    // Si es admincdr, sólo tickets creados por usuarios cdr
     else if (req.user.role === 'admincdr') {
-      const cdrUserIds = await User.find({ role: 'cdr' }).distinct('_id');
-      filter.usuario = { $in: cdrUserIds };
+      const cdrIds = await User.find({ role: 'cdr' }).distinct('_id');
+      filter.usuario = { $in: cdrIds };
     }
-    // Si es 'admin' o 'comprasadmin' => ven todos, pero igual se aplica filtro por fecha
+    // admin o comprasadmin ven todos (pero respeta el filtro de fecha si se dejó activo)
 
     const tickets = await Ticket.find(filter)
       .sort({ fecha: -1 })
@@ -118,6 +120,8 @@ exports.getAllTickets = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener tickets' });
   }
 };
+
+
 
 
 exports.resolveTicket = async (req, res) => {

@@ -792,101 +792,132 @@ async function handleResolverSubmit(e) {
     tituloCompras.textContent = `${username.toUpperCase()} - Tickets`;
   }
 
-  exportXLSXButton.addEventListener('click', async () => {
-    try {
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Tickets Filtrados');
 
-      // Encabezados
-      const headers = ['Fecha', 'Código', 'Cantidad','Proveedor', 'Usuario', 'Cliente', 'Ingreso', 'Llegó'];
-      worksheet.addRow(headers);
 
-      // Estilos para los encabezados
-      worksheet.getRow(1).eachCell(cell => {
-        cell.font = { bold: true, color: { argb: 'FFFFFF' } }; // Negrita y texto blanco
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: '4F81BD' }, // Color de fondo azul
-        };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' }; // Centrado
-        cell.border = {
-          top: { style: 'thin', color: { argb: '000000' } },
-          left: { style: 'thin', color: { argb: '000000' } },
-          bottom: { style: 'thin', color: { argb: '000000' } },
-          right: { style: 'thin', color: { argb: '000000' } },
-        };
-      });
+  // --- Referencias al modal de export ---
+const exportModal       = document.getElementById('exportModal');
+const exportColsInputs  = () => Array.from(document.querySelectorAll('input[name="columns"]:checked'));
+const exportFechaInicio = document.getElementById('exportFechaInicio');
+const exportFechaFin    = document.getElementById('exportFechaFin');
+const confirmExportBtn  = document.getElementById('confirmExport');
+const cancelExportBtn   = document.getElementById('cancelExport');
 
-      // Filtrar los tickets visibles en la tabla
-      const ticketsTbody = document.getElementById('ticketsTbody');
-      const visibleRows = ticketsTbody.querySelectorAll('tr');
+// Abrir modal con click en el botón existente
+exportXLSXButton.addEventListener('click', () => {
+  exportColsInputs().forEach(input => input.checked = true); // mantener selección previa
+  exportFechaInicio.value = '';
+  exportFechaFin.value    = '';
+  exportModal.style.display = 'flex';
+});
 
-      if (visibleRows.length === 0) {
-        alert('No hay tickets visibles para exportar.');
-        return;
-      }
+// Cerrar modal sin hacer nada
+cancelExportBtn.addEventListener('click', () => {
+  exportModal.style.display = 'none';
+});
 
-      visibleRows.forEach(row => {
-        const ticketId = row.getAttribute('data-id');
-        const ticket = allTickets.find(t => t._id === ticketId);
+confirmExportBtn.addEventListener('click', async () => {
+  exportModal.style.display = 'none';
+  const inicio = exportFechaInicio.value ? new Date(exportFechaInicio.value) : null;
+  const fin    = exportFechaFin.value    ? new Date(exportFechaFin.value)    : null;
 
-        if (ticket) {
-          const rowData = [
-            ticket.fecha ? new Date(ticket.fecha).toLocaleDateString('es-ES') : 'N/A',
-            ticket.codigo || 'N/A',
-            ticket.cantidad_resuelta || 'N/A',
-            ticket.proveedor || 'N/A',
-            ticket.usuario?.username || 'N/A',
-            ticket.cliente || 'N/A',
-            ticket.ingreso || 'N/A',
-            ticket.llego || 'N/A',
-          ];
-          const newRow = worksheet.addRow(rowData);
+  // 🎯 Aquí pedimos TODO el histórico
+  let todosTickets;
+  try {
+ const resAll = await fetch(`/tickets?soloUltimoMes=false`, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+    if (!resAll.ok) throw new Error(resAll.statusText);
+    todosTickets = await resAll.json();
+  } catch (err) {
+    console.error('Error al obtener todos los tickets:', err);
+    alert('No se pudieron cargar todos los tickets para exportar.');
+    return;
+  }
 
-          // Estilo para las celdas del cuerpo
-          newRow.eachCell(cell => {
-            cell.font = { color: { argb: '000000' } }; // Texto negro
-            cell.alignment = { horizontal: 'left', vertical: 'middle' }; // Alineado a la izquierda
-            cell.border = {
-              top: { style: 'thin', color: { argb: '000000' } },
-              left: { style: 'thin', color: { argb: '000000' } },
-              bottom: { style: 'thin', color: { argb: '000000' } },
-              right: { style: 'thin', color: { argb: '000000' } },
-            };
-          });
-        }
-      });
+  // Si hay rango, filtramos; si no, tomamos todo
+  const ticketsToExport = (inicio || fin)
+    ? todosTickets.filter(t => {
+        const f = new Date(t.fecha);
+        return (!inicio || f >= inicio) && (!fin || f <= fin);
+      })
+    : todosTickets;
 
-      // Ajuste de ancho automático para las columnas
-      worksheet.columns.forEach(column => {
-        let maxLength = 0;
-        column.eachCell({ includeEmpty: true }, cell => {
-          const value = cell.value || '';
-          maxLength = Math.max(maxLength, value.toString().length);
-        });
-        column.width = maxLength + 2; // Margen adicional
-      });
+  if (!ticketsToExport.length) {
+    alert('No hay tickets para exportar en ese rango.');
+    return;
+  }
 
-      // Descargar el archivo
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      });
+  // --- Generación del XLSX con ExcelJS ---
+  const workbook = new ExcelJS.Workbook();
+  const ws = workbook.addWorksheet('Tickets');
 
-      const now = new Date();
-      const formattedDate = now.toISOString().split('T')[0];
-      const fileName = `Tickets_Filtrados_${formattedDate}.xlsx`;
+  // Columnas elegidas (checkboxes)
+  const selectedCols = Array.from(document.querySelectorAll('input[name="columns"]:checked'))
+    .map(i => i.value);
 
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
-    } catch (error) {
-      console.error('Error al exportar:', error);
-      alert('Ocurrió un error al exportar los tickets.');
-    }
+  // Encabezados y estilo
+  ws.addRow(selectedCols);
+  ws.getRow(1).eachCell(cell => {
+    cell.font      = { bold:true, color:{argb:'FFFFFF'} };
+    cell.fill      = { type:'pattern', pattern:'solid', fgColor:{argb:'333333'} };
+    cell.alignment = { horizontal:'center', vertical:'middle' };
+    cell.border    = { top:{style:'thin'}, left:{style:'thin'},
+                       bottom:{style:'thin'}, right:{style:'thin'} };
   });
+
+  // Función para mapear cada columna
+  const mapValue = (t, col) => {
+    switch(col) {
+      case 'Ticket ID': return t.shortId;
+      case 'Fecha':     return new Date(t.fecha).toLocaleDateString('es-ES');
+      case 'Usuario':   return t.usuario?.username || 'N/A';
+      case 'Chasis':    return t.chasis || 'N/A';
+      case 'Cod/Pos':   return t.cod_pos || 'N/A';
+      case 'Cantidad':  return t.cant || 'N/A';
+      case 'Cliente':   return t.cliente || 'N/A';
+      case 'Estado':    return t.estado;
+      case 'Rubro':     return t.rubro || 'N/A';
+      case 'Tipo':      return t.tipo || 'N/A';
+      default:          return '';
+    }
+  };
+
+  // Agrego cada fila
+  ticketsToExport.forEach(t => {
+    const row = ws.addRow(selectedCols.map(col => mapValue(t, col)));
+    row.eachCell((cell, idx) => {
+      cell.border = { top:{style:'thin'}, left:{style:'thin'},
+                      bottom:{style:'thin'}, right:{style:'thin'} };
+      // si es columna Estado, coloreo la fuente
+      if (selectedCols[idx-1] === 'Estado') {
+        const m = { pendiente:'FFC000', resuelto:'00B050', negativo:'FF0000' };
+        const v = (cell.value||'').toString().toLowerCase();
+        if (m[v]) cell.font = { color:{argb:m[v]} };
+      }
+    });
+  });
+
+  // Auto-ajusto ancho columnas
+  ws.columns.forEach(col => {
+    let maxLen = 0;
+    col.eachCell({ includeEmpty:true }, c => {
+      maxLen = Math.max(maxLen, (c.value||'').toString().length);
+    });
+    col.width = maxLen + 2;
+  });
+
+  // Descarga
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob   = new Blob([buffer], {
+    type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+  const link   = document.createElement('a');
+  link.href    = URL.createObjectURL(blob);
+  const hoy    = new Date().toISOString().split('T')[0];
+  link.download= `Tickets_${hoy}.xlsx`;
+  link.click();
+});
+
 
 
   fetchAllTickets();

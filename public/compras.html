@@ -268,6 +268,64 @@
     </div>
   </div>
 
+<!-- Modal de Exportar tickets -->
+<div id="exportModal" class="modal export-modal">
+  <div class="modal-content export-modal__content">
+
+    <!-- Cabecera -->
+    <div class="export-modal__header">
+      <h3 class="export-modal__title">Exportar tickets</h3>
+    </div>
+
+    <!-- Sección Columnas -->
+    <fieldset class="export-modal__section">
+      <legend class="export-modal__legend">Columnas</legend>
+      <div class="export-modal__checkbox-list">
+        <label><input type="checkbox" name="columns" value="Ticket ID" checked/> Ticket ID</label>
+        <label><input type="checkbox" name="columns" value="Fecha" checked/> Fecha</label>
+        <label><input type="checkbox" name="columns" value="Usuario" checked/> Usuario</label>
+        <label><input type="checkbox" name="columns" value="Chasis"/> Chasis</label>
+        <label><input type="checkbox" name="columns" value="Cod/Pos" checked/> Cod/Pos</label>
+        <label><input type="checkbox" name="columns" value="Cantidad" checked/> Cantidad</label>
+        <label><input type="checkbox" name="columns" value="Cliente"/> Cliente</label>
+        <label><input type="checkbox" name="columns" value="Estado" checked/> Estado</label>
+        <label><input type="checkbox" name="columns" value="Rubro" checked/> Rubro</label>
+        <label><input type="checkbox" name="columns" value="Tipo" checked/> Tipo</label>
+      </div>
+    </fieldset>
+
+    <!-- Sección Fechas -->
+    <fieldset class="export-modal__section">
+      <legend class="export-modal__legend">Rango de fechas (opcional)</legend>
+      <div class="export-modal__dates">
+        <div class="export-modal__group">
+          <label for="exportFechaInicio">Fecha inicio</label>
+          <input type="date" id="exportFechaInicio" class="export-modal__date"/>
+        </div>
+        <div class="export-modal__group">
+          <label for="exportFechaFin">Fecha fin</label>
+          <input type="date" id="exportFechaFin" class="export-modal__date"/>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Pie con botones -->
+    <div class="export-modal__footer">
+      <button id="cancelExport"
+              class="export-modal__btn export-modal__btn--cancel">
+        Cancelar
+      </button>
+      <button id="confirmExport"
+              class="export-modal__btn export-modal__btn--confirm">
+        Exportar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+
   <!-- Scripts -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="js/compras.js"></script>
