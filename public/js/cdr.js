@@ -293,7 +293,7 @@ function renderTickets(tickets) {
           <tr><th>RESOLUCIÓN</th><td>${ticket.resolucion || '--'}</td></tr>
           <tr><th>COD/POS</th><td class="mayusc">${ticket.codigo}</td></tr>
           <tr><th>PROVEEDOR</th><td>${ticket.proveedor || '--'}</td></tr>
-          <tr><th>INGRESO</th><td>${ticket.ingreso || '--'}</td></tr>
+          <tr><th>INGRESO</th><td>${ticket.fechaIngreso ? new Date(ticket.fechaIngreso).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }) : ticket.plazoEntrega || "--"}</td></tr>
           <tr><th>CANTIDAD RESUELTA</th><td>${ticket.cantidad_resuelta || '--'}</td></tr>
           <tr><th>COMENTARIO</th><td>${ticket.comentario_resolucion || '--'}</td></tr>
           <tr><th>AVISADO</th><td>${ticket.avisado ? 'Sí' : 'No'}</td></tr>
