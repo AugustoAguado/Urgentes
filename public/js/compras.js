@@ -26,7 +26,9 @@
 
 
   
-  socket.on('nuevaVersion', () => {
+socket.on('nuevaVersion', () => {
+  if (document.getElementById('aviso-version')) return;
+
   const cartel = document.createElement('div');
   cartel.id = 'aviso-version';
   cartel.style.position = 'fixed';
@@ -40,11 +42,22 @@
   cartel.style.zIndex = '9999';
   cartel.style.fontWeight = 'bold';
   cartel.style.boxShadow = '0 -2px 10px rgba(0,0,0,0.3)';
-  cartel.innerText = 'Hay una nueva versión. Por favor, actualizá la página.';
+  cartel.style.fontFamily = 'inherit';
 
-  if (!document.getElementById('aviso-version')) {
-    document.body.appendChild(cartel);
-  }
+  cartel.innerHTML = `
+    Estamos migrando la plataforma a una nueva dirección. 
+    Accedé a la versión en 
+    <a 
+      href="https://urgentes.fly.dev/" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      style="color:#000; text-decoration:underline; font-weight:800;"
+    >
+      https://urgentes.fly.dev/
+    </a>
+  `;
+
+  document.body.appendChild(cartel);
 });
 
   socket.on('nuevoComentario', ({ ticketId, comentario }) => {
