@@ -11,10 +11,6 @@ const catalogRoutes = require('./routes/catalogRoutes');
 const app = express();
 
 
-app.use((req, res) => {
-  res.redirect(302, 'https://urgentes.fly.dev/');
-});
-
 app.use(cors());
 app.use(express.json());
 
