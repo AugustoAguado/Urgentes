@@ -17,7 +17,11 @@ primary_region = 'gru'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
+  memory = '265mb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 1024
+  memory_mb = 256
+
+[[statics]]
+  guest_path = "/public" 
+  url_prefix = "/"
